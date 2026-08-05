@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Saya</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+
+        /* Navbar transparan awal */
+        .navbar {
+            transition: 0.4s;
+            background: transparent;
+        }
+
+        /* Navbar ketika scroll */
+        .navbar.scrolled {
+            background: rgba(0, 0, 0, 0.85);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Hero */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(
+                rgba(0,0,0,0.5),
+                rgba(0,0,0,0.7)
+            ),
+            url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee")
+            center/cover;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            text-align:center;
+            color:white;
+        }
+
+
+        .profile-img{
+            width:200px;
+            height:200px;
+            object-fit:cover;
+            border:5px solid white;
+        }
+
+
+        section{
+            padding:80px 0;
+        }
+
+
+        .contact{
+            background:#111;
+            color:white;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+<!-- NAVBAR -->
+
+<nav class="navbar navbar-expand-lg fixed-top navbar-dark">
+
+<div class="container">
+
+<a class="navbar-brand fw-bold" href="#">
+Portfolio
+</a>
+
+
+<button class="navbar-toggler" 
+data-bs-toggle="collapse"
+data-bs-target="#menu">
+
+<span class="navbar-toggler-icon"></span>
+
+</button>
+
+
+<div class="collapse navbar-collapse" id="menu">
+
+<ul class="navbar-nav ms-auto">
+
+<li class="nav-item">
+<a class="nav-link" href="#beranda">
+Beranda
+</a>
+</li>
+
+
+<li class="nav-item">
+<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#tentang">
+Tentang
+</a>
+</li>
+
+
+<li class="nav-item">
+<a class="nav-link" href="#kontak">
+Kontak
+</a>
+</li>
+
+
+</ul>
+
+</div>
+
+</div>
+
+</nav>
+
+
+
+
+<!-- BERANDA -->
+
+<section class="hero" id="beranda">
+
+<div>
+
+
+<img src="gambar.png"
+class="rounded-circle profile-img mb-4">
+
+
+<h1 class="display-4 fw-bold">
+Halo, Saya Tasya
+</h1>
+
+
+<p class="lead">
+Taruni| Programmer | Pelajar
+</p>
+
+
+<a href="#kontak" class="btn btn-primary">
+Hubungi Saya
+</a>
+
+
+</div>
+
+</section>
+
+
+
+
+
+<!-- TENTANG MODAL -->
+
+<div class="modal fade" id="tentang">
+
+<div class="modal-dialog modal-dialog-centered">
+
+<div class="modal-content">
+
+
+<div class="modal-header">
+
+<h5 class="modal-title">
+Tentang Saya
+</h5>
+
+<button class="btn-close"
+data-bs-dismiss="modal">
+</button>
+
+</div>
+
+
+
+<div class="modal-body">
+
+<p>
+Saya adalah seorang yang tertarik dengan dunia
+pemrograman dan teknologi.
+Saya mempelajari HTML, CSS, Bootstrap,
+PHP, dan berbagai teknologi web.
+</p>
+
+
+<p>
+Tujuan saya adalah membuat website , game
+yang menarik, modern, dan mudah digunakan.
+</p>
+
+
+</div>
+
+
+<div class="modal-footer">
+
+<button class="btn btn-secondary"
+data-bs-dismiss="modal">
+Tutup
+</button>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+
+
+
+<!-- KONTAK -->
+
+<section class="contact" id="kontak">
+
+
+<div class="container text-center">
+
+
+<h2 class="mb-4">
+Kontak Saya
+</h2>
+
+
+<p>
+Jika ingin bekerja sama atau berdiskusi,
+silahkan hubungi saya.
+</p>
+
+
+<div class="row justify-content-center">
+
+
+<div class="col-md-5">
+
+
+<div class="card bg-dark text-white">
+
+<div class="card-body">
+
+
+<h5>
+Email
+</h5>
+
+<p>
+tasyaprogrammer@gmail.com
+</p>
+
+
+<h5>
+Telepon
+</h5>
+
+<p>
++62 812-3456-7890
+</p>
+
+
+<h5>
+Alamat
+</h5>
+
+<p>
+Indonesia
+</p>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<footer class="text-center p-3 bg-black text-white">
+
+© 2026 Portfolio Saya
+
+</footer>
+
+
+
+
+
+<!-- Bootstrap JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+
+
+// Navbar berubah saat scroll
+
+window.addEventListener("scroll",function(){
+
+let navbar=document.querySelector(".navbar");
+
+
+if(window.scrollY > 50){
+
+navbar.classList.add("scrolled");
+
+}else{
+
+navbar.classList.remove("scrolled");
+
+}
+
+});
+
+
+</script>
+
+
+</body>
+</html>
