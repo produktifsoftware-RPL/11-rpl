@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Bola</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    h1 {
+        margin: 10px 0 5px;
+    }
+
+    #info {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    canvas {
+        background: #159447;
+        border: 5px solid white;
+        border-radius: 10px;
+        max-width: 95vw;
+        max-height: 75vh;
+    }
+
+    #controls {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #ddd;
+    }
+
+    button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background: #2196f3;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>⚽ GAME BOLA</h1>
+
+<div id="info">
+    Skor: <span id="score">0 - 0</span>
+    &nbsp; | &nbsp;
+    Waktu: <span id="time">60</span>
+</div>
+
+<canvas id="game" width="1000" height="600"></canvas>
+
+<div id="controls">
+    Gerak: WASD / ↑ ↓ ← → &nbsp; | &nbsp; Tendang: SPACE
+</div>
+
+<button onclick="restartGame()">🔄 Restart</button>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const scoreText = document.getElementById("score");
+const timeText = document.getElementById("time");
+
+let keys = {};
+
+let scorePlayer = 0;
+let scoreEnemy = 0;
+let time = 60;
+let gameOver = false;
+
+const player = {
+    x: 200,
+    y: 300,
+    radius: 25,
+    speed: 5,
+    color: "#2196f3"
+};
+
+const enemy = {
+    x: 800,
+    y: 300,
+    radius: 25,
+    speed: 2.5,
+    color: "#e53935"
+};
+
+const ball = {
+    x: 500,
+    y: 300,
+    radius: 13,
+    vx: 0,
+    vy: 0
+};
+
+// Gawang
+const goalHeight = 180;
+const goalTop = 300 - goalHeight / 2;
+const goalBottom = 300 + goalHeight / 2;
+
+// Keyboard
+document.addEventListener("keydown", e => {
+    keys[e.key.toLowerCase()] = true;
+
+    if (e.code === "Space") {
+        kickBall();
+        e.preventDefault();
+    }
+});
+
+document.addEventListener("keyup", e => {
+    keys[e.key.toLowerCase()] = false;
+});
+
+function movePlayer() {
+
+    if (keys["w"] || keys["arrowup"]) {
+        player.y -= player.speed;
+    }
+
+    if (keys["s"] || keys["arrowdown"]) {
+        player.y += player.speed;
+    }
+
+    if (keys["a"] || keys["arrowleft"]) {
+        player.x -= player.speed;
+    }
+
+    if (keys["d"] || keys["arrowright"]) {
+        player.x += player.speed;
+    }
+
+    // Batas lapangan
+    player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+    player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+}
+
+function moveEnemy() {
+
+    let dx = ball.x - enemy.x;
+    let dy = ball.y - enemy.y;
+
+    let distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance > 1) {
+        enemy.x += (dx / distance) * enemy.speed;
+        enemy.y += (dy / distance) * enemy.speed;
+    }
+}
+
+function distance(a, b) {
+    let dx = a.x - b.x;
+    let dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function kickBall() {
+
+    if (distance(player, ball) < player.radius + ball.radius + 20) {
+
+        let dx = ball.x - player.x;
+        let dy = ball.y - player.y;
+
+        let d = Math.sqrt(dx * dx + dy * dy);
+
+        if (d === 0) return;
+
+        ball.vx = (dx / d) * 12;
+        ball.vy = (dy / d) * 12;
+    }
+}
+
+function updateBall() {
+
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    // Gesekan
+    ball.vx *= 0.98;
+    ball.vy *= 0.98;
+
+    // Pantulan atas bawah
+    if (ball.y - ball.radius < 0) {
+        ball.y = ball.radius;
+        ball.vy *= -1;
+    }
+
+    if (ball.y + ball.radius > canvas.height) {
+        ball.y = canvas.height - ball.radius;
+        ball.vy *= -1;
+    }
+
+    // Tabrakan dengan pemain
+    if (distance(player, ball) < player.radius + ball.radius) {
+
+        let dx = ball.x - player.x;
+        let dy = ball.y - player.y;
+        let d = Math.sqrt(dx * dx + dy * dy);
+
+        if (d > 0) {
+            ball.vx = (dx / d) * 6;
+            ball.vy = (dy / d) * 6;
+        }
+    }
+
+    // Tabrakan dengan musuh
+    if (distance(enemy, ball) < enemy.radius + ball.radius) {
+
+        let dx = ball.x - enemy.x;
+        let dy = ball.y - enemy.y;
+        let d = Math.sqrt(dx * dx + dy * dy);
+
+        if (d > 0) {
+            ball.vx = (dx / d) * 7;
+            ball.vy = (dy / d) * 7;
+        }
+    }
+
+    // Gol kiri
+    if (ball.x < 0) {
+
+        if (ball.y > goalTop && ball.y < goalBottom) {
+            scoreEnemy++;
+            resetPositions();
+        } else {
+            ball.x = ball.radius;
+            ball.vx *= -1;
+        }
+    }
+
+    // Gol kanan
+    if (ball.x > canvas.width) {
+
+        if (ball.y > goalTop && ball.y < goalBottom) {
+            scorePlayer++;
+            resetPositions();
+        } else {
+            ball.x = canvas.width - ball.radius;
+            ball.vx *= -1;
+        }
+    }
+}
+
+function resetPositions() {
+
+    player.x = 200;
+    player.y = 300;
+
+    enemy.x = 800;
+    enemy.y = 300;
+
+    ball.x = 500;
+    ball.y = 300;
+
+    ball.vx = 0;
+    ball.vy = 0;
+
+    updateScore();
+}
+
+function updateScore() {
+    scoreText.textContent = `${scorePlayer} - ${scoreEnemy}`;
+}
+
+function drawField() {
+
+    // Lapangan
+    ctx.fillStyle = "#159447";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Garis luar
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+    // Garis tengah
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, 10);
+    ctx.lineTo(canvas.width / 2, canvas.height - 10);
+    ctx.stroke();
+
+    // Lingkaran tengah
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, 80, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Titik tengah
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, 5, 0, Math.PI * 2);
+    ctx.fillStyle = "white";
+    ctx.fill();
+
+    // Gawang kiri
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 8;
+    ctx.strokeRect(-5, goalTop, 45, goalHeight);
+
+    // Gawang kanan
+    ctx.strokeRect(canvas.width - 40, goalTop, 45, goalHeight);
+}
+
+function drawCircle(obj) {
+
+    ctx.beginPath();
+    ctx.arc(obj.x, obj.y, obj.radius, 0, Math.PI * 2);
+
+    ctx.fillStyle = obj.color;
+    ctx.fill();
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+}
+
+function drawBall() {
+
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+
+    ctx.fillStyle = "white";
+    ctx.fill();
+
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+function drawGameOver() {
+
+    ctx.fillStyle = "rgba(0,0,0,0.7)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+
+    ctx.font = "50px Arial";
+    ctx.fillText("GAME OVER", canvas.width / 2, 250);
+
+    ctx.font = "35px Arial";
+
+    let result = "";
+
+    if (scorePlayer > scoreEnemy) {
+        result = "🏆 KAMU MENANG!";
+    } else if (scorePlayer < scoreEnemy) {
+        result = "😢 KAMU KALAH!";
+    } else {
+        result = "🤝 SERI!";
+    }
+
+    ctx.fillText(result, canvas.width / 2, 320);
+
+    ctx.font = "25px Arial";
+    ctx.fillText(
+        `${scorePlayer} - ${scoreEnemy}`,
+        canvas.width / 2,
+        370
+    );
+}
+
+function gameLoop() {
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawField();
+
+    if (!gameOver) {
+
+        movePlayer();
+        moveEnemy();
+        updateBall();
+
+        drawCircle(player);
+        drawCircle(enemy);
+        drawBall();
+
+    } else {
+
+        drawCircle(player);
+        drawCircle(enemy);
+        drawBall();
+
+        drawGameOver();
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+// Timer
+setInterval(() => {
+
+    if (!gameOver) {
+
+        time--;
+
+        timeText.textContent = time;
+
+        if (time <= 0) {
+            gameOver = true;
+        }
+    }
+
+}, 1000);
+
+function restartGame() {
+
+    scorePlayer = 0;
+    scoreEnemy = 0;
+    time = 60;
+    gameOver = false;
+
+    timeText.textContent = time;
+
+    resetPositions();
+}
+
+updateScore();
+gameLoop();
+
+</script>
+
+</body>
+</html>
