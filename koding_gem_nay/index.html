@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Tetris</title>
+
+    <!-- Bootstrap 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at 50% 10%, #273b65 0%, #111827 45%, #050814 100%);
+            color: white;
+        }
+
+        /* =========================
+           MAIN LAYOUT
+        ========================= */
+
+        .game-wrapper {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            width: min(1100px, 96vw);
+            height: min(850px, 94vh);
+            display: grid;
+            grid-template-columns: 230px minmax(350px, 430px) 230px;
+            gap: 28px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* =========================
+           3D CARDS
+        ========================= */
+
+        .glass-card {
+            background: linear-gradient(
+                145deg,
+                rgba(255,255,255,0.13),
+                rgba(255,255,255,0.035)
+            );
+
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 22px;
+            box-shadow:
+                0 25px 60px rgba(0,0,0,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.12);
+
+            backdrop-filter: blur(15px);
+        }
+
+        .side-panel {
+            padding: 22px;
+        }
+
+        .panel-title {
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        /* =========================
+           GAME BOARD
+        ========================= */
+
+        .board-area {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .board-frame {
+            position: relative;
+            padding: 14px;
+            border-radius: 25px;
+
+            background:
+                linear-gradient(145deg, #34476d, #111827);
+
+            box-shadow:
+                0 35px 70px rgba(0,0,0,0.6),
+                inset 4px 4px 10px rgba(255,255,255,0.08),
+                inset -5px -5px 15px rgba(0,0,0,0.5);
+
+            transform: perspective(900px) rotateX(1deg);
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 390px;
+            height: 780px;
+            max-height: calc(94vh - 60px);
+            max-width: 38vw;
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    rgba(15,23,42,0.93),
+                    rgba(2,6,23,0.97)
+                );
+
+            box-shadow:
+                inset 0 0 35px rgba(0,0,0,0.8),
+                0 0 30px rgba(59,130,246,0.08);
+        }
+
+        /* =========================
+           TITLE
+        ========================= */
+
+        .game-title {
+            position: absolute;
+            top: -55px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            font-weight: 900;
+            font-size: 27px;
+            letter-spacing: 7px;
+
+            color: #fff;
+
+            text-shadow:
+                0 2px 0 #2563eb,
+                0 5px 20px rgba(37,99,235,0.6);
+
+            white-space: nowrap;
+        }
+
+        /* =========================
+           NEXT PIECE
+        ========================= */
+
+        #nextCanvas {
+            width: 170px;
+            height: 130px;
+            display: block;
+            margin: auto;
+
+            border-radius: 15px;
+            background: rgba(0,0,0,0.25);
+        }
+
+        /* =========================
+           SCORE
+        ========================= */
+
+        .score-box {
+            margin-bottom: 12px;
+            padding: 15px;
+
+            border-radius: 14px;
+
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .score-label {
+            color: #94a3b8;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .score-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #60a5fa;
+        }
+
+        /* =========================
+           CONTROLS
+        ========================= */
+
+        .control-key {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .key {
+            min-width: 45px;
+            height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 9px;
+
+            background:
+                linear-gradient(145deg, #334155, #111827);
+
+            border: 1px solid rgba(255,255,255,0.15);
+
+            box-shadow:
+                0 5px 0 #020617,
+                0 8px 15px rgba(0,0,0,0.35);
+
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .control-text {
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        /* =========================
+           BUTTON
+        ========================= */
+
+        .btn-3d {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+
+            padding: 12px;
+
+            color: white;
+            font-weight: 700;
+
+            background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+
+            box-shadow:
+                0 5px 0 #173b9c,
+                0 10px 20px rgba(37,99,235,0.25);
+
+            transition: 0.15s;
+        }
+
+        .btn-3d:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow:
+                0 1px 0 #173b9c;
+        }
+
+        /* =========================
+           POPUP
+        ========================= */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+
+            z-index: 999;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(2,6,23,0.75);
+            backdrop-filter: blur(10px);
+
+            opacity: 1;
+            visibility: visible;
+
+            transition: 0.3s;
+        }
+
+        .modal-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .game-modal {
+            width: min(420px, 90vw);
+            padding: 40px 35px;
+
+            text-align: center;
+
+            border-radius: 25px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(37,99,235,0.25),
+                    rgba(15,23,42,0.95)
+                );
+
+            border: 1px solid rgba(96,165,250,0.3);
+
+            box-shadow:
+                0 40px 100px rgba(0,0,0,0.65),
+                inset 0 1px 0 rgba(255,255,255,0.12);
+
+            transform: perspective(900px) rotateX(3deg);
+        }
+
+        .modal-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+
+            filter:
+                drop-shadow(0 10px 15px rgba(37,99,235,0.5));
+        }
+
+        .modal-title {
+            font-size: 35px;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .modal-description {
+            color: #94a3b8;
+            margin-bottom: 25px;
+        }
+
+        /* =========================
+           MOBILE FALLBACK
+        ========================= */
+
+        @media (max-width: 900px) {
+            body {
+                overflow: auto;
+            }
+
+            .game-wrapper {
+                min-height: 100vh;
+                height: auto;
+                padding: 30px 10px;
+            }
+
+            .game-container {
+                height: auto;
+                grid-template-columns: 1fr;
+            }
+
+            .board-area {
+                order: 1;
+            }
+
+            .left-panel {
+                order: 2;
+            }
+
+            .right-panel {
+                order: 3;
+            }
+
+            #gameCanvas {
+                width: min(90vw, 390px);
+                height: min(160vw, 780px);
+                max-width: none;
+                max-height: none;
+            }
+
+            .game-title {
+                top: -40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="game-wrapper">
+
+    <div class="game-container">
+
+        <!-- LEFT PANEL -->
+        <div class="glass-card side-panel left-panel">
+
+            <div class="panel-title">
+                Statistik
+            </div>
+
+            <div class="score-box">
+                <div class="score-label">Score</div>
+                <div id="score" class="score-value">0</div>
+            </div>
+
+            <div class="score-box">
+                <div class="score-label">Lines</div>
+                <div id="lines" class="score-value">0</div>
+            </div>
+
+            <div class="score-box">
+                <div class="score-label">Level</div>
+                <div id="level" class="score-value">1</div>
+            </div>
+
+            <button
+                class="btn-3d mt-3"
+                onclick="restartGame()"
+            >
+                ↻ Restart
+            </button>
+
+        </div>
+
+        <!-- CENTER BOARD -->
+        <div class="board-area">
+
+            <div class="game-title">
+                TETRIS
+            </div>
+
+            <div class="board-frame">
+                <canvas id="gameCanvas"></canvas>
+            </div>
+
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="glass-card side-panel right-panel">
+
+            <div class="panel-title">
+                Next Block
+            </div>
+
+            <canvas id="nextCanvas" width="170" height="130"></canvas>
+
+            <hr class="border-secondary my-4">
+
+            <div class="panel-title">
+                Controls
+            </div>
+
+            <div class="control-key">
+                <div class="key">←</div>
+                <div class="control-text">Geser kiri</div>
+            </div>
+
+            <div class="control-key">
+                <div class="key">→</div>
+                <div class="control-text">Geser kanan</div>
+            </div>
+
+            <div class="control-key">
+                <div class="key">↓</div>
+                <div class="control-text">Turun cepat</div>
+            </div>
+
+            <div class="control-key">
+                <div class="key">SPACE</div>
+                <div class="control-text">Putar pola</div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- START / GAME OVER MODAL -->
+
+<div id="gameModal" class="modal-overlay">
+
+    <div class="game-modal">
+
+        <div id="modalIcon" class="modal-icon">
+            🧱
+        </div>
+
+        <div id="modalTitle" class="modal-title">
+            TETRIS
+        </div>
+
+        <div id="modalDescription" class="modal-description">
+            Susun balok dan jangan sampai memenuhi bagian atas.
+        </div>
+
+        <button
+            id="modalButton"
+            class="btn-3d"
+            onclick="startGame()"
+        >
+            ▶ Mulai Game
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+/* =========================================================
+   TETRIS ENGINE
+========================================================= */
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const nextCanvas = document.getElementById("nextCanvas");
+const nextCtx = nextCanvas.getContext("2d");
+
+const COLS = 10;
+const ROWS = 20;
+
+/*
+    Ukuran internal canvas dibuat fixed.
+    CSS yang mengatur ukuran visual.
+*/
+canvas.width = 400;
+canvas.height = 800;
+
+const BLOCK = 40;
+
+/* =========================
+   COLORS
+========================= */
+
+const COLORS = {
+    I: "#22d3ee",
+    J: "#3b82f6",
+    L: "#f97316",
+    O: "#facc15",
+    S: "#22c55e",
+    T: "#a855f7",
+    Z: "#ef4444"
+};
+
+/* =========================
+   PIECES
+========================= */
+
+const PIECES = {
+
+    I: [
+        [0,0,0,0],
+        [1,1,1,1],
+        [0,0,0,0],
+        [0,0,0,0]
+    ],
+
+    J: [
+        [1,0,0],
+        [1,1,1],
+        [0,0,0]
+    ],
+
+    L: [
+        [0,0,1],
+        [1,1,1],
+        [0,0,0]
+    ],
+
+    O: [
+        [1,1],
+        [1,1]
+    ],
+
+    S: [
+        [0,1,1],
+        [1,1,0],
+        [0,0,0]
+    ],
+
+    T: [
+        [0,1,0],
+        [1,1,1],
+        [0,0,0]
+    ],
+
+    Z: [
+        [1,1,0],
+        [0,1,1],
+        [0,0,0]
+    ]
+};
+
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let board = [];
+
+let currentPiece = null;
+let nextPiece = null;
+
+let score = 0;
+let lines = 0;
+let level = 1;
+
+let gameRunning = false;
+let gameOver = false;
+
+let lastTime = 0;
+let dropCounter = 0;
+
+let dropInterval = 850;
+
+
+/* =========================================================
+   CREATE BOARD
+========================================================= */
+
+function createBoard() {
+
+    board = [];
+
+    for (let y = 0; y < ROWS; y++) {
+
+        board.push(
+            new Array(COLS).fill(null)
+        );
+
+    }
+}
+
+
+/* =========================================================
+   RANDOM PIECE
+========================================================= */
+
+function randomPiece() {
+
+    const types = Object.keys(PIECES);
+
+    const type =
+        types[Math.floor(Math.random() * types.length)];
+
+    return {
+
+        type: type,
+
+        matrix: PIECES[type].map(row => [...row]),
+
+        x: 0,
+
+        y: 0
+
+    };
+}
+
+
+/* =========================================================
+   SPAWN PIECE
+========================================================= */
+
+function spawnPiece() {
+
+    currentPiece = nextPiece || randomPiece();
+
+    nextPiece = randomPiece();
+
+    currentPiece.x =
+        Math.floor(
+            (COLS - currentPiece.matrix[0].length) / 2
+        );
+
+    currentPiece.y = 0;
+
+    drawNext();
+
+    if (collision(currentPiece)) {
+
+        endGame();
+
+    }
+}
+
+
+/* =========================================================
+   COLLISION
+========================================================= */
+
+function collision(piece) {
+
+    for (let y = 0; y < piece.matrix.length; y++) {
+
+        for (let x = 0; x < piece.matrix[y].length; x++) {
+
+            if (!piece.matrix[y][x]) continue;
+
+            const newX = piece.x + x;
+            const newY = piece.y + y;
+
+            if (
+                newX < 0 ||
+                newX >= COLS ||
+                newY >= ROWS
+            ) {
+
+                return true;
+
+            }
+
+            if (
+                newY >= 0 &&
+                board[newY][newX]
+            ) {
+
+                return true;
+
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/* =========================================================
+   MERGE
+========================================================= */
+
+function merge() {
+
+    currentPiece.matrix.forEach((row, y) => {
+
+        row.forEach((value, x) => {
+
+            if (value) {
+
+                const boardY =
+                    currentPiece.y + y;
+
+                const boardX =
+                    currentPiece.x + x;
+
+                if (
+                    boardY >= 0 &&
+                    boardY < ROWS
+                ) {
+
+                    board[boardY][boardX] =
+                        currentPiece.type;
+
+                }
+            }
+
+        });
+
+    });
+}
+
+
+/* =========================================================
+   CLEAR LINES
+========================================================= */
+
+function clearLines() {
+
+    let cleared = 0;
+
+    outer:
+    for (let y = ROWS - 1; y >= 0; y--) {
+
+        for (let x = 0; x < COLS; x++) {
+
+            if (!board[y][x]) {
+
+                continue outer;
+
+            }
+        }
+
+        board.splice(y, 1);
+
+        board.unshift(
+            new Array(COLS).fill(null)
+        );
+
+        cleared++;
+        y++;
+    }
+
+    if (cleared > 0) {
+
+        const points = [
+            0,
+            100,
+            300,
+            500,
+            800
+        ];
+
+        score += points[cleared] * level;
+
+        lines += cleared;
+
+        level =
+            Math.floor(lines / 10) + 1;
+
+        /*
+            Level semakin tinggi,
+            balok semakin cepat.
+        */
+
+        dropInterval =
+            Math.max(
+                100,
+                850 - ((level - 1) * 70)
+            );
+
+        updateStats();
+    }
+}
+
+
+/* =========================================================
+   MOVE
+========================================================= */
+
+function move(direction) {
+
+    if (!gameRunning) return;
+
+    currentPiece.x += direction;
+
+    if (collision(currentPiece)) {
+
+        currentPiece.x -= direction;
+
+    }
+}
+
+
+/* =========================================================
+   SOFT DROP
+========================================================= */
+
+function softDrop() {
+
+    if (!gameRunning) return;
+
+    currentPiece.y++;
+
+    if (collision(currentPiece)) {
+
+        currentPiece.y--;
+
+        merge();
+
+        clearLines();
+
+        spawnPiece();
+    }
+
+    dropCounter = 0;
+}
+
+
+/* =========================================================
+   ROTATE
+========================================================= */
+
+function rotateMatrix(matrix) {
+
+    return matrix[0].map(
+        (_, index) =>
+            matrix.map(row => row[index]).reverse()
+    );
+}
+
+
+function rotatePiece() {
+
+    if (!gameRunning) return;
+
+    const oldMatrix =
+        currentPiece.matrix;
+
+    const oldX =
+        currentPiece.x;
+
+    currentPiece.matrix =
+        rotateMatrix(currentPiece.matrix);
+
+    /*
+        Wall kick sederhana.
+        Membuat rotasi tidak mudah mentok.
+    */
+
+    const offsets = [0, -1, 1, -2, 2];
+
+    let valid = false;
+
+    for (const offset of offsets) {
+
+        currentPiece.x =
+            oldX + offset;
+
+        if (!collision(currentPiece)) {
+
+            valid = true;
+            break;
+
+        }
+    }
+
+    if (!valid) {
+
+        currentPiece.matrix =
+            oldMatrix;
+
+        currentPiece.x =
+            oldX;
+    }
+}
+
+
+/* =========================================================
+   HARD DROP
+========================================================= */
+
+function hardDrop() {
+
+    if (!gameRunning) return;
+
+    while (!collision(currentPiece)) {
+
+        currentPiece.y++;
+
+    }
+
+    currentPiece.y--;
+
+    merge();
+
+    clearLines();
+
+    spawnPiece();
+
+    dropCounter = 0;
+}
+
+
+/* =========================================================
+   DRAW BLOCK
+========================================================= */
+
+function drawBlock(
+    context,
+    x,
+    y,
+    size,
+    color
+) {
+
+    const padding = 2;
+
+    const px = x * size;
+    const py = y * size;
+
+    /*
+        Shadow
+    */
+
+    context.fillStyle =
+        "rgba(0,0,0,0.35)";
+
+    context.fillRect(
+        px + 4,
+        py + 5,
+        size - 5,
+        size - 5
+    );
+
+    /*
+        Main block
+    */
+
+    const gradient =
+        context.createLinearGradient(
+            px,
+            py,
+            px + size,
+            py + size
+        );
+
+    gradient.addColorStop(
+        0,
+        lightenColor(color, 35)
+    );
+
+    gradient.addColorStop(
+        0.45,
+        color
+    );
+
+    gradient.addColorStop(
+        1,
+        darkenColor(color, 35)
+    );
+
+    context.fillStyle = gradient;
+
+    context.fillRect(
+        px + padding,
+        py + padding,
+        size - padding * 2,
+        size - padding * 2
+    );
+
+    /*
+        Highlight
+    */
+
+    context.fillStyle =
+        "rgba(255,255,255,0.35)";
+
+    context.fillRect(
+        px + 4,
+        py + 4,
+        size - 10,
+        5
+    );
+
+    context.fillRect(
+        px + 4,
+        py + 4,
+        5,
+        size - 10
+    );
+
+    /*
+        Bottom edge
+    */
+
+    context.fillStyle =
+        "rgba(0,0,0,0.25)";
+
+    context.fillRect(
+        px + 4,
+        py + size - 8,
+        size - 8,
+        4
+    );
+
+    context.strokeStyle =
+        "rgba(255,255,255,0.15)";
+
+    context.strokeRect(
+        px + padding,
+        py + padding,
+        size - padding * 2,
+        size - padding * 2
+    );
+}
+
+
+/* =========================================================
+   COLOR HELPERS
+========================================================= */
+
+function lightenColor(hex, amount) {
+
+    let num =
+        parseInt(hex.replace("#",""),16);
+
+    let r =
+        Math.min(
+            255,
+            (num >> 16) + amount
+        );
+
+    let g =
+        Math.min(
+            255,
+            ((num >> 8) & 255) + amount
+        );
+
+    let b =
+        Math.min(
+            255,
+            (num & 255) + amount
+        );
+
+    return `rgb(${r},${g},${b})`;
+}
+
+
+function darkenColor(hex, amount) {
+
+    let num =
+        parseInt(hex.replace("#",""),16);
+
+    let r =
+        Math.max(
+            0,
+            (num >> 16) - amount
+        );
+
+    let g =
+        Math.max(
+            0,
+            ((num >> 8) & 255) - amount
+        );
+
+    let b =
+        Math.max(
+            0,
+            (num & 255) - amount
+        );
+
+    return `rgb(${r},${g},${b})`;
+}
+
+
+/* =========================================================
+   DRAW BOARD
+========================================================= */
+
+function drawBoard() {
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    /*
+        Background
+    */
+
+    const bg =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            canvas.height
+        );
+
+    bg.addColorStop(0, "#0f172a");
+    bg.addColorStop(1, "#020617");
+
+    ctx.fillStyle = bg;
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    /*
+        Grid
+    */
+
+    ctx.strokeStyle =
+        "rgba(148,163,184,0.055)";
+
+    ctx.lineWidth = 1;
+
+    for (let x = 0; x <= COLS; x++) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x * BLOCK,
+            0
+        );
+
+        ctx.lineTo(
+            x * BLOCK,
+            canvas.height
+        );
+
+        ctx.stroke();
+    }
+
+    for (let y = 0; y <= ROWS; y++) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y * BLOCK
+        );
+
+        ctx.lineTo(
+            canvas.width,
+            y * BLOCK
+        );
+
+        ctx.stroke();
+    }
+
+
+    /*
+        Existing blocks
+    */
+
+    for (let y = 0; y < ROWS; y++) {
+
+        for (let x = 0; x < COLS; x++) {
+
+            const type = board[y][x];
+
+            if (type) {
+
+                drawBlock(
+                    ctx,
+                    x,
+                    y,
+                    BLOCK,
+                    COLORS[type]
+                );
+            }
+        }
+    }
+
+
+    /*
+        Current piece
+    */
+
+    if (currentPiece) {
+
+        currentPiece.matrix.forEach(
+            (row, y) => {
+
+                row.forEach(
+                    (value, x) => {
+
+                        if (value) {
+
+                            drawBlock(
+                                ctx,
+                                currentPiece.x + x,
+                                currentPiece.y + y,
+                                BLOCK,
+                                COLORS[currentPiece.type]
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+    }
+}
+
+
+/* =========================================================
+   NEXT PIECE
+========================================================= */
+
+function drawNext() {
+
+    nextCtx.clearRect(
+        0,
+        0,
+        nextCanvas.width,
+        nextCanvas.height
+    );
+
+    nextCtx.fillStyle =
+        "rgba(0,0,0,0.25)";
+
+    nextCtx.fillRect(
+        0,
+        0,
+        nextCanvas.width,
+        nextCanvas.height
+    );
+
+    if (!nextPiece) return;
+
+    const matrix =
+        nextPiece.matrix;
+
+    const size = 30;
+
+    const width =
+        matrix[0].length * size;
+
+    const height =
+        matrix.length * size;
+
+    const offsetX =
+        (nextCanvas.width - width) / 2;
+
+    const offsetY =
+        (nextCanvas.height - height) / 2;
+
+    matrix.forEach(
+        (row, y) => {
+
+            row.forEach(
+                (value, x) => {
+
+                    if (!value) return;
+
+                    drawBlock(
+                        nextCtx,
+                        x + offsetX / size,
+                        y + offsetY / size,
+                        size,
+                        COLORS[nextPiece.type]
+                    );
+                }
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats() {
+
+    document.getElementById("score")
+        .textContent = score;
+
+    document.getElementById("lines")
+        .textContent = lines;
+
+    document.getElementById("level")
+        .textContent = level;
+}
+
+
+/* =========================================================
+   GAME LOOP
+   requestAnimationFrame membuat animasi lebih smooth.
+========================================================= */
+
+function update(time = 0) {
+
+    const deltaTime =
+        time - lastTime;
+
+    lastTime = time;
+
+    if (gameRunning) {
+
+        dropCounter += deltaTime;
+
+        if (dropCounter >= dropInterval) {
+
+            softDrop();
+
+        }
+
+        drawBoard();
+    }
+
+    requestAnimationFrame(update);
+}
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+function startGame() {
+
+    document
+        .getElementById("gameModal")
+        .classList.add("hidden");
+
+    createBoard();
+
+    score = 0;
+    lines = 0;
+    level = 1;
+
+    dropInterval = 850;
+
+    gameRunning = true;
+    gameOver = false;
+
+    currentPiece = null;
+    nextPiece = null;
+
+    updateStats();
+
+    spawnPiece();
+
+    dropCounter = 0;
+    lastTime = performance.now();
+}
+
+
+/* =========================================================
+   RESTART
+========================================================= */
+
+function restartGame() {
+
+    startGame();
+
+}
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function endGame() {
+
+    gameRunning = false;
+    gameOver = true;
+
+    document.getElementById("modalIcon")
+        .textContent = "💀";
+
+    document.getElementById("modalTitle")
+        .textContent = "GAME OVER";
+
+    document.getElementById("modalDescription")
+        .innerHTML =
+        `Score kamu: <strong>${score}</strong><br>
+         Lines: <strong>${lines}</strong>`;
+
+    document.getElementById("modalButton")
+        .textContent = "↻ Main Lagi";
+
+    document
+        .getElementById("gameModal")
+        .classList.remove("hidden");
+}
+
+
+/* =========================================================
+   KEYBOARD CONTROL
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (!gameRunning) return;
+
+        switch (event.code) {
+
+            case "ArrowLeft":
+
+                event.preventDefault();
+
+                move(-1);
+
+                break;
+
+
+            case "ArrowRight":
+
+                event.preventDefault();
+
+                move(1);
+
+                break;
+
+
+            case "ArrowDown":
+
+                event.preventDefault();
+
+                /*
+                    Down ditekan = turun satu langkah.
+                */
+
+                softDrop();
+
+                break;
+
+
+            case "Space":
+
+                event.preventDefault();
+
+                /*
+                    Space = rotate.
+                */
+
+                rotatePiece();
+
+                break;
+
+        }
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+createBoard();
+
+drawBoard();
+
+requestAnimationFrame(update);
+
+</script>
+
+</body>
+</html>
