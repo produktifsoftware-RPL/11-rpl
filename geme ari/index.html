@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Racing Game - Gems</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #0b0b0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        h1 {
+            margin: 15px 0;
+            color: #00ff88;
+        }
+
+        .info {
+            width: 400px;
+            max-width: 95%;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            background: #191922;
+            padding: 12px 20px;
+            border-radius: 10px 10px 0 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #game {
+            position: relative;
+            width: 400px;
+            max-width: 95%;
+            height: 650px;
+            margin: auto;
+            overflow: hidden;
+
+            background:
+                repeating-linear-gradient(
+                    to bottom,
+                    #444 0px,
+                    #444 50px,
+                    #555 50px,
+                    #555 100px
+                );
+
+            border-left: 65px solid #159447;
+            border-right: 65px solid #159447;
+        }
+
+        /* Garis tengah jalan */
+        #game::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+
+            width: 8px;
+            height: 100%;
+
+            background:
+                repeating-linear-gradient(
+                    to bottom,
+                    white 0px,
+                    white 60px,
+                    transparent 60px,
+                    transparent 120px
+                );
+
+            opacity: 0.8;
+        }
+
+        /* =========================
+           MOBIL PEMAIN
+        ========================= */
+
+        #player {
+            position: absolute;
+
+            width: 55px;
+            height: 90px;
+
+            bottom: 30px;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            background: linear-gradient(
+                90deg,
+                #c40000,
+                #ff3333,
+                #c40000
+            );
+
+            border: 3px solid white;
+            border-radius: 12px 12px 8px 8px;
+
+            z-index: 5;
+        }
+
+        #player::before {
+            content: "";
+
+            position: absolute;
+
+            width: 35px;
+            height: 25px;
+
+            top: 12px;
+            left: 7px;
+
+            background: #111;
+
+            border: 2px solid #aaa;
+            border-radius: 5px;
+        }
+
+        #player::after {
+            content: "💡";
+
+            position: absolute;
+
+            bottom: 5px;
+            left: 17px;
+
+            font-size: 16px;
+        }
+
+        /* =========================
+           MOBIL MUSUH
+        ========================= */
+
+        .enemy {
+            position: absolute;
+
+            width: 55px;
+            height: 90px;
+
+            background: linear-gradient(
+                90deg,
+                #0044aa,
+                #3399ff,
+                #0044aa
+            );
+
+            border: 3px solid white;
+            border-radius: 12px 12px 8px 8px;
+
+            z-index: 4;
+        }
+
+        .enemy::before {
+            content: "";
+
+            position: absolute;
+
+            width: 35px;
+            height: 25px;
+
+            top: 12px;
+            left: 7px;
+
+            background: #111;
+
+            border: 2px solid #aaa;
+            border-radius: 5px;
+        }
+
+        /* =========================
+           GEMS
+        ========================= */
+
+        .gem {
+            position: absolute;
+
+            width: 30px;
+            height: 30px;
+
+            background: #00eaff;
+
+            transform: rotate(45deg);
+
+            border: 3px solid white;
+
+            box-shadow:
+                0 0 10px #00eaff,
+                0 0 20px #00eaff;
+
+            z-index: 3;
+
+            animation: gemGlow 0.7s infinite alternate;
+        }
+
+        @keyframes gemGlow {
+            from {
+                box-shadow:
+                    0 0 5px #00eaff,
+                    0 0 10px #00eaff;
+            }
+
+            to {
+                box-shadow:
+                    0 0 15px #00eaff,
+                    0 0 30px #00eaff;
+            }
+        }
+
+        /* =========================
+           GAME OVER
+        ========================= */
+
+        #gameOver {
+            display: none;
+
+            position: absolute;
+
+            top: 50%;
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            width: 85%;
+
+            padding: 30px;
+
+            background: rgba(0, 0, 0, 0.95);
+
+            border: 3px solid #ff3333;
+
+            border-radius: 15px;
+
+            z-index: 20;
+        }
+
+        #gameOver h2 {
+            color: #ff3333;
+
+            margin-bottom: 15px;
+
+            font-size: 30px;
+        }
+
+        #gameOver p {
+            font-size: 20px;
+
+            margin: 10px 0;
+        }
+
+        button {
+            margin-top: 15px;
+
+            padding: 12px 25px;
+
+            background: #00cc66;
+
+            color: white;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #00ff88;
+            color: black;
+        }
+
+        .controls {
+            margin-top: 15px;
+
+            color: #aaa;
+        }
+
+        @media (max-height: 750px) {
+            #game {
+                height: 560px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🏁 RACING GAME</h1>
+
+    <div class="info">
+        <div>🏆 Skor: <span id="score">0</span></div>
+        <div>💎 Gems: <span id="gems">0</span></div>
+    </div>
+
+    <div id="game">
+
+        <!-- Mobil pemain -->
+        <div id="player"></div>
+
+        <!-- Game Over -->
+        <div id="gameOver">
+
+            <h2>💥 GAME OVER!</h2>
+
+            <p>
+                🏆 Skor:
+                <span id="finalScore">0</span>
+            </p>
+
+            <p>
+                💎 Gems:
+                <span id="finalGems">0</span>
+            </p>
+
+            <button onclick="restartGame()">
+                🔄 Main Lagi
+            </button>
+
+        </div>
+
+    </div>
+
+    <p class="controls">
+        ⬅️ A / ← &nbsp;&nbsp; | &nbsp;&nbsp; D / → ➡️
+    </p>
+
+
+    <script>
+
+        /* =========================
+           VARIABEL GAME
+        ========================= */
+
+        const game = document.getElementById("game");
+        const player = document.getElementById("player");
+
+        const scoreText =
+            document.getElementById("score");
+
+        const gemsText =
+            document.getElementById("gems");
+
+        const gameOver =
+            document.getElementById("gameOver");
+
+        const finalScore =
+            document.getElementById("finalScore");
+
+        const finalGems =
+            document.getElementById("finalGems");
+
+
+        let playerX = 50;
+
+        let score = 0;
+
+        let gems = 0;
+
+        let speed = 5;
+
+        let gameRunning = true;
+
+        let enemies = [];
+
+        let gemObjects = [];
+
+
+        const keys = {
+            left: false,
+            right: false
+        };
+
+
+        /* =========================
+           KONTROL KEYBOARD
+        ========================= */
+
+        document.addEventListener("keydown", function(e) {
+
+            if (
+                e.key === "ArrowLeft" ||
+                e.key.toLowerCase() === "a"
+            ) {
+                keys.left = true;
+            }
+
+            if (
+                e.key === "ArrowRight" ||
+                e.key.toLowerCase() === "d"
+            ) {
+                keys.right = true;
+            }
+
+        });
+
+
+        document.addEventListener("keyup", function(e) {
+
+            if (
+                e.key === "ArrowLeft" ||
+                e.key.toLowerCase() === "a"
+            ) {
+                keys.left = false;
+            }
+
+            if (
+                e.key === "ArrowRight" ||
+                e.key.toLowerCase() === "d"
+            ) {
+                keys.right = false;
+            }
+
+        });
+
+
+        /* =========================
+           BUAT MOBIL MUSUH
+        ========================= */
+
+        function createEnemy() {
+
+            if (!gameRunning) return;
+
+            const enemy =
+                document.createElement("div");
+
+            enemy.classList.add("enemy");
+
+
+            const randomX =
+                Math.random() * 80 + 10;
+
+
+            enemy.style.left =
+                randomX + "%";
+
+            enemy.style.top =
+                "-100px";
+
+
+            game.appendChild(enemy);
+
+
+            enemies.push({
+                element: enemy,
+                x: randomX,
+                y: -100
+            });
+
+        }
+
+
+        /* =========================
+           BUAT GEM
+        ========================= */
+
+        function createGem() {
+
+            if (!gameRunning) return;
+
+
+            const gem =
+                document.createElement("div");
+
+            gem.classList.add("gem");
+
+
+            const randomX =
+                Math.random() * 80 + 10;
+
+
+            gem.style.left =
+                randomX + "%";
+
+            gem.style.top =
+                "-50px";
+
+
+            game.appendChild(gem);
+
+
+            gemObjects.push({
+                element: gem,
+                x: randomX,
+                y: -50
+            });
+
+        }
+
+
+        /* =========================
+           CEK TABRAKAN
+        ========================= */
+
+        function collision(element1, element2) {
+
+            const rect1 =
+                element1.getBoundingClientRect();
+
+            const rect2 =
+                element2.getBoundingClientRect();
+
+
+            return !(
+                rect1.bottom < rect2.top ||
+                rect1.top > rect2.bottom ||
+                rect1.right < rect2.left ||
+                rect1.left > rect2.right
+            );
+
+        }
+
+
+        /* =========================
+           UPDATE GAME
+        ========================= */
+
+        function updateGame() {
+
+            if (!gameRunning) return;
+
+
+            /* Gerakkan pemain */
+
+            if (keys.left) {
+                playerX -= 1.3;
+            }
+
+            if (keys.right) {
+                playerX += 1.3;
+            }
+
+
+            /* Batas jalan */
+
+            if (playerX < 10) {
+                playerX = 10;
+            }
+
+            if (playerX > 90) {
+                playerX = 90;
+            }
+
+
+            player.style.left =
+                playerX + "%";
+
+
+            /* =====================
+               MUSUH
+            ===================== */
+
+            enemies.forEach(function(enemy, index) {
+
+                enemy.y += speed;
+
+                enemy.element.style.top =
+                    enemy.y + "px";
+
+
+                /* Tabrakan */
+
+                if (
+                    collision(
+                        player,
+                        enemy.element
+                    )
+                ) {
+
+                    endGame();
+
+                }
+
+
+                /* Musuh lewat */
+
+                if (
+                    enemy.y >
+                    game.offsetHeight
+                ) {
+
+                    enemy.element.remove();
+
+                    enemies.splice(index, 1);
+
+                    score++;
+
+                    scoreText.textContent =
+                        score;
+
+
+                    /* Tingkatkan kecepatan */
+
+                    if (
+                        score % 5 === 0
+                    ) {
+
+                        speed += 0.5;
+
+                    }
+
+                }
+
+            });
+
+
+            /* =====================
+               GEMS
+            ===================== */
+
+            gemObjects.forEach(
+                function(gem, index) {
+
+                    gem.y += speed;
+
+                    gem.element.style.top =
+                        gem.y + "px";
+
+
+                    /* Ambil gem */
+
+                    if (
+                        collision(
+                            player,
+                            gem.element
+                        )
+                    ) {
+
+                        gems++;
+
+                        gemsText.textContent =
+                            gems;
+
+
+                        gem.element.remove();
+
+                        gemObjects.splice(
+                            index,
+                            1
+                        );
+
+                    }
+
+
+                    /* Gem lewat */
+
+                    else if (
+                        gem.y >
+                        game.offsetHeight
+                    ) {
+
+                        gem.element.remove();
+
+                        gemObjects.splice(
+                            index,
+                            1
+                        );
+
+                    }
+
+                }
+            );
+
+
+            requestAnimationFrame(
+                updateGame
+            );
+
+        }
+
+
+        /* =========================
+           GAME OVER
+        ========================= */
+
+        function endGame() {
+
+            gameRunning = false;
+
+
+            finalScore.textContent =
+                score;
+
+            finalGems.textContent =
+                gems;
+
+
+            gameOver.style.display =
+                "block";
+
+        }
+
+
+        /* =========================
+           RESTART
+        ========================= */
+
+        function restartGame() {
+
+            /* Hapus musuh */
+
+            enemies.forEach(
+                function(enemy) {
+                    enemy.element.remove();
+                }
+            );
+
+
+            /* Hapus gems */
+
+            gemObjects.forEach(
+                function(gem) {
+                    gem.element.remove();
+                }
+            );
+
+
+            enemies = [];
+
+            gemObjects = [];
+
+
+            score = 0;
+
+            gems = 0;
+
+            speed = 5;
+
+            playerX = 50;
+
+            gameRunning = true;
+
+
+            scoreText.textContent =
+                "0";
+
+            gemsText.textContent =
+                "0";
+
+
+            player.style.left =
+                "50%";
+
+
+            gameOver.style.display =
+                "none";
+
+
+            updateGame();
+
+        }
+
+
+        /* =========================
+           SPAWN OBJECT
+        ========================= */
+
+        setInterval(
+            createEnemy,
+            1200
+        );
+
+
+        setInterval(
+            createGem,
+            900
+        );
+
+
+        /* =========================
+           MULAI GAME
+        ========================= */
+
+        updateGame();
+
+    </script>
+
+</body>
+</html>
