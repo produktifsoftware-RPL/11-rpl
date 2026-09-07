@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Block Blast</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #171b3a, #292d61);
+        font-family: Arial, sans-serif;
+        color: white;
+    }
+
+    .game {
+        width: 390px;
+        max-width: 95vw;
+        text-align: center;
+    }
+
+    h1 {
+        margin: 10px 0;
+        font-size: 38px;
+        color: #ffd43b;
+        text-shadow: 3px 3px #111;
+    }
+
+    .score {
+        font-size: 22px;
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+
+    #board {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 4px;
+        padding: 7px;
+        background: #10132b;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,.4);
+    }
+
+    .cell {
+        aspect-ratio: 1;
+        background: #292e55;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: .1s;
+    }
+
+    .cell:hover {
+        background: #3d4475;
+    }
+
+    .cell.filled {
+        box-shadow: inset 0 -4px rgba(0,0,0,.18);
+    }
+
+    .pieces {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-top: 22px;
+        min-height: 110px;
+    }
+
+    .piece {
+        width: 95px;
+        height: 95px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: .2s;
+    }
+
+    .piece:hover {
+        background: rgba(255,255,255,.08);
+        transform: scale(1.05);
+    }
+
+    .piece.selected {
+        background: rgba(255,255,255,.18);
+        outline: 3px solid white;
+    }
+
+    .shape {
+        display: grid;
+        gap: 3px;
+    }
+
+    .block {
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        box-shadow: inset 0 -3px rgba(0,0,0,.2);
+    }
+
+    button {
+        margin-top: 15px;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 10px;
+        background: #ff4757;
+        color: white;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #ff6b78;
+    }
+
+    #message {
+        margin-top: 10px;
+        min-height: 25px;
+        font-weight: bold;
+        color: #ffd43b;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="game">
+    <h1>BLOCK BLAST</h1>
+
+    <div class="score">
+        Skor: <span id="score">0</span>
+    </div>
+
+    <div id="board"></div>
+
+    <div class="pieces" id="pieces"></div>
+
+    <div id="message"></div>
+
+    <button onclick="restartGame()">🔄 Restart</button>
+</div>
+
+<script>
+const SIZE = 8;
+
+let board = [];
+let pieces = [];
+let selectedPiece = null;
+let score = 0;
+
+const colors = [
+    "#ff4757",
+    "#2ed573",
+    "#1e90ff",
+    "#ffa502",
+    "#a55eea",
+    "#00d2d3"
+];
+
+// Bentuk balok
+const shapes = [
+    [[1]],
+
+    [[1,1]],
+
+    [[1,1,1]],
+
+    [[1],
+     [1]],
+
+    [[1],
+     [1],
+     [1]],
+
+    [[1,1],
+     [1,1]],
+
+    [[1,1,1],
+     [0,1,0]],
+
+    [[1,1,1],
+     [1,0,0]],
+
+    [[1,1,0],
+     [0,1,1]],
+
+    [[1,1,1,1]],
+
+    [[1,0],
+     [1,1]],
+
+    [[0,1],
+     [1,1]]
+];
+
+function createBoard() {
+    board = [];
+
+    for (let r = 0; r < SIZE; r++) {
+        board[r] = [];
+
+        for (let c = 0; c < SIZE; c++) {
+            board[r][c] = null;
+        }
+    }
+}
+
+function drawBoard() {
+    const boardElement = document.getElementById("board");
+    boardElement.innerHTML = "";
+
+    for (let r = 0; r < SIZE; r++) {
+        for (let c = 0; c < SIZE; c++) {
+
+            const cell = document.createElement("div");
+            cell.className = "cell";
+
+            if (board[r][c]) {
+                cell.classList.add("filled");
+                cell.style.background = board[r][c];
+            }
+
+            cell.onclick = () => placePiece(r, c);
+
+            boardElement.appendChild(cell);
+        }
+    }
+}
+
+function randomPiece() {
+    const shape =
+        shapes[Math.floor(Math.random() * shapes.length)];
+
+    return {
+        shape: shape,
+        color: colors[Math.floor(Math.random() * colors.length)]
+    };
+}
+
+function generatePieces() {
+    pieces = [
+        randomPiece(),
+        randomPiece(),
+        randomPiece()
+    ];
+
+    selectedPiece = null;
+    drawPieces();
+}
+
+function drawPieces() {
+    const container = document.getElementById("pieces");
+    container.innerHTML = "";
+
+    pieces.forEach((piece, index) => {
+
+        const pieceElement = document.createElement("div");
+        pieceElement.className = "piece";
+
+        if (selectedPiece === index) {
+            pieceElement.classList.add("selected");
+        }
+
+        const shapeElement = document.createElement("div");
+        shapeElement.className = "shape";
+
+        shapeElement.style.gridTemplateColumns =
+            `repeat(${piece.shape[0].length}, 22px)`;
+
+        piece.shape.forEach(row => {
+            row.forEach(value => {
+
+                const block = document.createElement("div");
+
+                if (value) {
+                    block.className = "block";
+                    block.style.background = piece.color;
+                } else {
+                    block.style.width = "22px";
+                    block.style.height = "22px";
+                }
+
+                shapeElement.appendChild(block);
+            });
+        });
+
+        pieceElement.appendChild(shapeElement);
+
+        pieceElement.onclick = () => {
+            selectedPiece = index;
+            drawPieces();
+            showMessage("Pilih posisi di papan!");
+        };
+
+        container.appendChild(pieceElement);
+    });
+}
+
+function canPlace(piece, row, col) {
+
+    for (let r = 0; r < piece.shape.length; r++) {
+        for (let c = 0; c < piece.shape[r].length; c++) {
+
+            if (!piece.shape[r][c]) continue;
+
+            const boardRow = row + r;
+            const boardCol = col + c;
+
+            if (
+                boardRow >= SIZE ||
+                boardCol >= SIZE ||
+                boardRow < 0 ||
+                boardCol < 0
+            ) {
+                return false;
+            }
+
+            if (board[boardRow][boardCol]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+function placePiece(row, col) {
+
+    if (selectedPiece === null) {
+        showMessage("Pilih balok terlebih dahulu!");
+        return;
+    }
+
+    const piece = pieces[selectedPiece];
+
+    if (!canPlace(piece, row, col)) {
+        showMessage("❌ Balok tidak bisa ditempatkan di sini!");
+        return;
+    }
+
+    for (let r = 0; r < piece.shape.length; r++) {
+        for (let c = 0; c < piece.shape[r].length; c++) {
+
+            if (piece.shape[r][c]) {
+                board[row + r][col + c] = piece.color;
+            }
+        }
+    }
+
+    score += countBlocks(piece.shape);
+
+    pieces.splice(selectedPiece, 1);
+
+    selectedPiece = null;
+
+    clearLines();
+
+    if (pieces.length === 0) {
+        generatePieces();
+    } else {
+        drawPieces();
+    }
+
+    drawBoard();
+    updateScore();
+
+    if (!hasAnyMove()) {
+        showMessage("💀 GAME OVER!");
+    }
+}
+
+function countBlocks(shape) {
+
+    let count = 0;
+
+    shape.forEach(row => {
+        row.forEach(value => {
+            if (value) count++;
+        });
+    });
+
+    return count;
+}
+
+function clearLines() {
+
+    let rowsToClear = [];
+    let colsToClear = [];
+
+    // Cek baris
+    for (let r = 0; r < SIZE; r++) {
+
+        if (board[r].every(cell => cell !== null)) {
+            rowsToClear.push(r);
+        }
+    }
+
+    // Cek kolom
+    for (let c = 0; c < SIZE; c++) {
+
+        let full = true;
+
+        for (let r = 0; r < SIZE; r++) {
+            if (!board[r][c]) {
+                full = false;
+                break;
+            }
+        }
+
+        if (full) {
+            colsToClear.push(c);
+        }
+    }
+
+    const total = rowsToClear.length + colsToClear.length;
+
+    if (total > 0) {
+
+        rowsToClear.forEach(r => {
+            for (let c = 0; c < SIZE; c++) {
+                board[r][c] = null;
+            }
+        });
+
+        colsToClear.forEach(c => {
+            for (let r = 0; r < SIZE; r++) {
+                board[r][c] = null;
+            }
+        });
+
+        score += total * 10;
+
+        if (total >= 2) {
+            score += total * 5;
+            showMessage("🔥 COMBO! +" + (total * 15));
+        } else {
+            showMessage("✨ LINE CLEARED!");
+        }
+    }
+}
+
+function hasAnyMove() {
+
+    for (let i = 0; i < pieces.length; i++) {
+
+        const piece = pieces[i];
+
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+
+                if (canPlace(piece, r, c)) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+function updateScore() {
+    document.getElementById("score").textContent = score;
+}
+
+function showMessage(text) {
+    document.getElementById("message").textContent = text;
+
+    setTimeout(() => {
+        document.getElementById("message").textContent = "";
+    }, 1800);
+}
+
+function restartGame() {
+    score = 0;
+    selectedPiece = null;
+
+    createBoard();
+    generatePieces();
+    drawBoard();
+    updateScore();
+
+    showMessage("🎮 Selamat bermain!");
+}
+
+// Mulai game
+restartGame();
+</script>
+
+</body>
+</html>
