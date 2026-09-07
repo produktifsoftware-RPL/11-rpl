@@ -1,0 +1,4134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#020617">
+
+<title>Tetris Neon 3D - Level Up</title>
+
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+>
+
+<style>
+:root {
+    --bg: #020617;
+    --cyan: #00eaff;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #facc15;
+    --orange: #f97316;
+    --text: #f8fafc;
+    --muted: #64748b;
+    --radius: 22px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    overflow: hidden;
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    color: var(--text);
+
+    background:
+        radial-gradient(
+            circle at 50% -15%,
+            rgba(0,234,255,.18),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 0% 100%,
+            rgba(139,92,246,.16),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 100% 70%,
+            rgba(236,72,153,.12),
+            transparent 30%
+        ),
+        #020617;
+}
+
+#particles {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .65;
+}
+
+.app {
+    position: relative;
+    z-index: 2;
+    width: min(1200px, 96vw);
+    height: min(96vh, 920px);
+    margin: 2vh auto;
+
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 16px;
+}
+
+.glass {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(30,41,72,.94),
+            rgba(2,6,23,.94)
+        );
+
+    border: 1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        0 25px 70px rgba(0,0,0,.45),
+        inset 0 1px rgba(255,255,255,.08),
+        0 0 50px rgba(0,234,255,.035);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+/* HEADER */
+
+.header {
+    min-height: 105px;
+    padding: 18px 24px;
+    border-radius: var(--radius);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.logo {
+    font-size: clamp(28px,4vw,44px);
+    line-height: 1;
+    font-weight: 1000;
+    letter-spacing: 6px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00eaff,
+            #3b82f6,
+            #8b5cf6,
+            #ec4899
+        );
+
+    background-size: 200% auto;
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    filter:
+        drop-shadow(
+            0 0 15px rgba(0,234,255,.25)
+        );
+
+    animation: logoGlow 5s linear infinite;
+}
+
+@keyframes logoGlow {
+    to {
+        background-position: 200% center;
+    }
+}
+
+.logo-sub {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 4px;
+}
+
+.stats {
+    display: flex;
+    gap: 8px;
+}
+
+.stat {
+    min-width: 105px;
+    padding: 8px 14px;
+    text-align: center;
+    border-radius: 14px;
+
+    background: rgba(0,0,0,.25);
+    border: 1px solid rgba(255,255,255,.07);
+}
+
+.stat.flash {
+    animation: statFlash .35s ease;
+}
+
+@keyframes statFlash {
+    50% {
+        transform: scale(1.12);
+        border-color: var(--cyan);
+        box-shadow:
+            0 0 25px rgba(0,234,255,.45);
+    }
+}
+
+.stat-value {
+    margin-top: 2px;
+    font-size: 23px;
+    font-weight: 1000;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* MAIN */
+
+.main {
+    min-height: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* SIDE */
+
+.side {
+    width: 185px;
+    flex-shrink: 0;
+    padding: 17px;
+    border-radius: var(--radius);
+}
+
+.side-title {
+    margin-bottom: 10px;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.preview {
+    width: 130px;
+    height: 110px;
+    margin: auto;
+    display: block;
+    border-radius: 15px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0,234,255,.06),
+            rgba(0,0,0,.3)
+        );
+
+    border: 1px solid rgba(255,255,255,.07);
+}
+
+.preview.hold {
+    height: 100px;
+}
+
+.control-list {
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.control-list strong {
+    color: white;
+}
+
+/* BOARD */
+
+.board-shell {
+    position: relative;
+
+    height: min(700px, 74vh);
+    aspect-ratio: 10 / 20;
+    max-width: 350px;
+
+    padding: 9px;
+    border-radius: 25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #475569,
+            #020617 35%,
+            #111827 70%,
+            #020617
+        );
+
+    box-shadow:
+        0 35px 90px rgba(0,0,0,.75),
+        0 0 65px rgba(0,234,255,.11),
+        inset 3px 3px 10px rgba(255,255,255,.14),
+        inset -6px -6px 18px rgba(0,0,0,.8);
+
+    transform:
+        perspective(1200px)
+        rotateX(1deg);
+
+    overflow: hidden;
+}
+
+.board-shell::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+
+    border-radius: inherit;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(0,234,255,.14),
+        inset 0 0 35px rgba(0,234,255,.035);
+}
+
+.board-shell.shake {
+    animation: screenShake .35s ease;
+}
+
+@keyframes screenShake {
+    20% {
+        transform:
+            perspective(1200px)
+            rotateX(1deg)
+            translate(-5px,3px);
+    }
+
+    40% {
+        transform:
+            perspective(1200px)
+            rotateX(1deg)
+            translate(5px,-3px);
+    }
+
+    60% {
+        transform:
+            perspective(1200px)
+            rotateX(1deg)
+            translate(-4px,-2px);
+    }
+
+    80% {
+        transform:
+            perspective(1200px)
+            rotateX(1deg)
+            translate(4px,2px);
+    }
+}
+
+#game {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    background: #020617;
+}
+
+/* PAUSE */
+
+.pause-overlay {
+    position: absolute;
+    inset: 9px;
+    z-index: 10;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background: rgba(2,6,23,.72);
+
+    backdrop-filter: blur(5px);
+}
+
+.pause-overlay.show {
+    display: flex;
+}
+
+.pause-content {
+    text-align: center;
+}
+
+.pause-title {
+    font-size: 38px;
+    font-weight: 1000;
+    letter-spacing: 5px;
+
+    color: var(--cyan);
+
+    text-shadow:
+        0 0 20px rgba(0,234,255,.7);
+}
+
+.pause-sub {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+/* FOOTER */
+
+.footer {
+    min-height: 92px;
+    padding: 14px 20px;
+    border-radius: var(--radius);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.instructions {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.instructions strong {
+    color: white;
+}
+
+.btn-neon {
+    border: 0;
+    border-radius: 13px;
+
+    padding: 11px 23px;
+
+    color: white;
+    font-weight: 900;
+    letter-spacing: 1px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #06b6d4,
+            #2563eb
+        );
+
+    box-shadow:
+        0 6px 0 #172554,
+        0 12px 30px rgba(37,99,235,.3);
+
+    transition: .15s;
+}
+
+.btn-neon:hover {
+    color: white;
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 0 #172554,
+        0 16px 35px rgba(37,99,235,.4);
+}
+
+.btn-neon:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #172554;
+}
+
+/* MOBILE */
+
+.mobile-controls {
+    display: none;
+
+    width: min(350px,90vw);
+    margin: 0 auto 12px;
+
+    grid-template-columns: repeat(4,1fr);
+    gap: 7px;
+}
+
+.mobile-key {
+    height: 44px;
+
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+    font-size: 18px;
+    font-weight: 900;
+
+    background:
+        linear-gradient(
+            145deg,
+            #334155,
+            #111827
+        );
+
+    box-shadow: 0 4px 0 #020617;
+
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-key:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #020617;
+    background: #075985;
+}
+
+.mobile-key.wide {
+    grid-column: span 2;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+/* SCORE FLOAT */
+
+.score-float {
+    position: fixed;
+    z-index: 50;
+    pointer-events: none;
+
+    color: var(--yellow);
+
+    font-size: 24px;
+    font-weight: 1000;
+
+    text-shadow:
+        0 0 10px var(--yellow),
+        0 0 25px var(--yellow);
+
+    animation:
+        scoreFloat 1s ease forwards;
+}
+
+@keyframes scoreFloat {
+    0% {
+        opacity: 0;
+        transform:
+            translateY(10px)
+            scale(.7);
+    }
+
+    20% {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1.1);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translateY(-70px)
+            scale(1);
+    }
+}
+
+/* LEVEL UP */
+
+.level-up {
+    position: fixed;
+
+    left: 50%;
+    top: 35%;
+
+    z-index: 60;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    text-align: center;
+
+    transform:
+        translate(-50%,-50%)
+        scale(.2);
+}
+
+.level-up.show {
+    animation:
+        levelUpAnimation 1.2s
+        cubic-bezier(.2,1.6,.4,1)
+        forwards;
+}
+
+.level-up-title {
+    font-size:
+        clamp(45px,8vw,90px);
+
+    font-weight: 1000;
+
+    letter-spacing: 5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00eaff,
+            #fff,
+            #8b5cf6,
+            #ec4899,
+            #00eaff
+        );
+
+    background-size: 300% auto;
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    text-shadow:
+        0 0 20px rgba(0,234,255,.7);
+
+    animation:
+        rainbow 1s linear infinite;
+}
+
+.level-up-sub {
+    margin-top: 5px;
+
+    color: var(--yellow);
+
+    font-size: 15px;
+    font-weight: 1000;
+
+    letter-spacing: 5px;
+}
+
+@keyframes levelUpAnimation {
+
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-50%,-50%)
+            scale(.2)
+            rotate(-10deg);
+    }
+
+    20% {
+        opacity: 1;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1.2)
+            rotate(3deg);
+    }
+
+    55% {
+        opacity: 1;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-50%,-60%)
+            scale(1.35);
+    }
+}
+
+/* COMBO */
+
+.combo {
+    position: fixed;
+
+    left: 50%;
+    top: 42%;
+
+    z-index: 40;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    text-align: center;
+
+    transform:
+        translate(-50%,-50%)
+        scale(.4);
+}
+
+.combo.show {
+    animation:
+        comboPop .9s
+        cubic-bezier(.2,1.6,.4,1)
+        forwards;
+}
+
+.combo-number {
+    font-size:
+        clamp(40px,7vw,75px);
+
+    font-weight: 1000;
+
+    color: white;
+
+    text-shadow:
+        0 0 10px var(--cyan),
+        0 0 30px var(--cyan),
+        0 0 70px var(--purple);
+}
+
+.combo-label {
+    color: var(--cyan);
+
+    font-size: 12px;
+    font-weight: 1000;
+    letter-spacing: 6px;
+}
+
+@keyframes comboPop {
+
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-50%,-50%)
+            scale(.35)
+            rotate(-8deg);
+    }
+
+    20% {
+        opacity: 1;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1.2)
+            rotate(2deg);
+    }
+
+    55% {
+        opacity: 1;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-50%,-65%)
+            scale(1.25);
+    }
+}
+
+/* WIN */
+
+.win {
+    position: fixed;
+
+    left: 50%;
+    top: 45%;
+
+    z-index: 45;
+
+    pointer-events: none;
+
+    text-align: center;
+
+    opacity: 0;
+
+    transform:
+        translate(-50%,-50%);
+}
+
+.win.show {
+    animation:
+        winPop 1.4s ease forwards;
+}
+
+.win-title {
+    font-size:
+        clamp(45px,8vw,105px);
+
+    font-weight: 1000;
+    letter-spacing: 8px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #facc15,
+            #fff,
+            #00eaff,
+            #ec4899,
+            #facc15
+        );
+
+    background-size: 300% auto;
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    animation:
+        rainbow 1s linear infinite;
+}
+
+.win-sub {
+    color: var(--yellow);
+
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 5px;
+}
+
+@keyframes rainbow {
+    to {
+        background-position: 300% center;
+    }
+}
+
+@keyframes winPop {
+
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-50%,-50%)
+            scale(.1)
+            rotate(-10deg);
+    }
+
+    20% {
+        opacity: 1;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1.2);
+    }
+
+    55% {
+        opacity: 1;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1.4);
+    }
+}
+
+/* MODAL */
+
+.modal-content {
+    background:
+        linear-gradient(
+            145deg,
+            #1e293b,
+            #020617
+        );
+
+    border:
+        1px solid rgba(0,234,255,.2);
+
+    border-radius: 25px;
+
+    color: white;
+
+    box-shadow:
+        0 35px 100px rgba(0,0,0,.8),
+        0 0 60px rgba(0,234,255,.1);
+}
+
+.modal-icon {
+    font-size: 60px;
+
+    filter:
+        drop-shadow(
+            0 0 20px rgba(0,234,255,.5)
+        );
+}
+
+.modal-title {
+    font-weight: 1000;
+    letter-spacing: 4px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px) {
+
+    body {
+        overflow: auto;
+    }
+
+    .app {
+        width: 96vw;
+        height: auto;
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 10px 0;
+    }
+
+    .main {
+        gap: 12px;
+    }
+
+    .side {
+        width: 150px;
+        padding: 12px;
+    }
+
+    .board-shell {
+        height: 65vh;
+        max-width: 310px;
+    }
+
+    .stat {
+        min-width: 75px;
+    }
+}
+
+@media(max-width:680px) {
+
+    .header {
+        min-height: 82px;
+        padding: 12px;
+    }
+
+    .logo {
+        font-size: 25px;
+        letter-spacing: 3px;
+    }
+
+    .logo-sub {
+        font-size: 7px;
+        letter-spacing: 2px;
+    }
+
+    .stats {
+        gap: 4px;
+    }
+
+    .stat {
+        min-width: 58px;
+        padding: 6px;
+    }
+
+    .stat-value {
+        font-size: 17px;
+    }
+
+    .main {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .side {
+        display: none;
+    }
+
+    .board-shell {
+        height: 62vh;
+        max-width: 300px;
+    }
+
+    .mobile-controls {
+        display: grid;
+    }
+
+    .footer {
+        min-height: 70px;
+        justify-content: center;
+    }
+
+    .instructions {
+        display: none;
+    }
+}
+
+@media(max-height:700px) {
+
+    .board-shell {
+        height: 55vh;
+    }
+}
+
+button {
+    touch-action: manipulation;
+}
+
+@media(prefers-reduced-motion:reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="particles"></canvas>
+
+<div id="combo" class="combo">
+    <div id="comboNumber" class="combo-number">
+        COMBO x2
+    </div>
+
+    <div class="combo-label">
+        COMBO
+    </div>
+</div>
+
+<div id="levelUp" class="level-up">
+    <div id="levelUpTitle" class="level-up-title">
+        LEVEL 2
+    </div>
+
+    <div class="level-up-sub">
+        SPEED UP!
+    </div>
+</div>
+
+<div id="win" class="win">
+    <div class="win-title">
+        TETRIS!
+    </div>
+
+    <div class="win-sub">
+        AMAZING MOVE
+    </div>
+</div>
+
+<div class="app">
+
+    <header class="glass header">
+
+        <div>
+            <div class="logo">
+                TETRIS
+            </div>
+
+            <div class="logo-sub">
+                NEON 3D • ULTRA HD
+            </div>
+        </div>
+
+        <div class="stats">
+
+            <div id="scoreStat" class="stat">
+
+                <div class="stat-label">
+                    Score
+                </div>
+
+                <div id="score" class="stat-value">
+                    0
+                </div>
+
+            </div>
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Level
+                </div>
+
+                <div id="level" class="stat-value">
+                    1
+                </div>
+
+            </div>
+
+            <div class="stat d-none d-sm-block">
+
+                <div class="stat-label">
+                    Lines
+                </div>
+
+                <div id="lines" class="stat-value">
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <main class="main">
+
+        <aside class="glass side">
+
+            <div class="side-title">
+                Hold
+            </div>
+
+            <canvas
+                id="holdCanvas"
+                class="preview hold"
+                width="130"
+                height="100"
+            ></canvas>
+
+            <div class="mt-4 side-title">
+                Controls
+            </div>
+
+            <div class="control-list">
+
+                <div>
+                    <strong>← →</strong>
+                    &nbsp; Move
+                </div>
+
+                <div>
+                    <strong>↓</strong>
+                    &nbsp; Soft Drop
+                </div>
+
+                <div>
+                    <strong>↑</strong>
+                    &nbsp; Rotate
+                </div>
+
+                <div>
+                    <strong>SPACE</strong>
+                    &nbsp; Hard Drop
+                </div>
+
+                <div>
+                    <strong>C</strong>
+                    &nbsp; Hold
+                </div>
+
+                <div>
+                    <strong>P / ESC</strong>
+                    &nbsp; Pause
+                </div>
+
+            </div>
+
+        </aside>
+
+        <section
+            id="boardShell"
+            class="board-shell"
+        >
+
+            <canvas id="game"></canvas>
+
+            <div
+                id="pauseOverlay"
+                class="pause-overlay"
+            >
+
+                <div class="pause-content">
+
+                    <div class="pause-title">
+                        PAUSED
+                    </div>
+
+                    <div class="pause-sub">
+                        PRESS P OR ESC TO RESUME
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <aside class="glass side">
+
+            <div class="side-title">
+                Next
+            </div>
+
+            <canvas
+                id="nextCanvas"
+                class="preview"
+                width="130"
+                height="110"
+            ></canvas>
+
+            <div class="mt-4 side-title">
+                High Score
+            </div>
+
+            <div
+                id="highScore"
+                class="fs-3 fw-bold text-info"
+            >
+                0
+            </div>
+
+            <div class="mt-3 side-title">
+                Bonus
+            </div>
+
+            <div class="control-list">
+
+                <div>
+                    <strong>1 Line</strong>
+                    <br>
+                    100 × Level
+                </div>
+
+                <div>
+                    <strong>2 Lines</strong>
+                    <br>
+                    300 × Level
+                </div>
+
+                <div>
+                    <strong>3 Lines</strong>
+                    <br>
+                    500 × Level 
+                </div>
+
+                <div>
+                    <strong>4 Lines</strong>
+                    <br>
+                    800 × Level
+                </div>
+
+            </div>
+
+        </aside>
+
+    </main>
+
+    <div class="mobile-controls">
+
+        <button
+            class="mobile-key"
+            data-action="left"
+        >
+            ←
+        </button>
+
+        <button
+            class="mobile-key"
+            data-action="down"
+        >
+            ↓
+        </button>
+
+        <button
+            class="mobile-key"
+            data-action="right"
+        >
+            →
+        </button>
+
+        <button
+            class="mobile-key"
+            data-action="rotate"
+        >
+            ↻
+        </button>
+
+        <button
+            class="mobile-key wide"
+            data-action="hold"
+        >
+            HOLD
+        </button>
+
+        <button
+            class="mobile-key wide"
+            data-action="drop"
+        >
+            HARD DROP
+        </button>
+
+    </div>
+
+    <footer class="glass footer">
+
+        <div class="instructions">
+
+            <strong>
+                KEYBOARD
+            </strong>
+
+            <br>
+
+            ← → Move
+            &nbsp; • &nbsp;
+            ↓ Soft Drop
+            &nbsp; • &nbsp;
+            ↑ Rotate
+            &nbsp; • &nbsp;
+            SPACE Hard Drop
+            &nbsp; • &nbsp;
+            C Hold
+            &nbsp; • &nbsp;
+            P Pause
+
+        </div>
+
+        <button
+            id="newGameButton"
+            class="btn-neon"
+        >
+            NEW GAME
+        </button>
+
+    </footer>
+
+</div>
+
+<div
+    class="modal fade"
+    id="gameModal"
+    tabindex="-1"
+    data-bs-backdrop="static"
+>
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content text-center p-4">
+
+            <div
+                id="modalIcon"
+                class="modal-icon"
+            >
+                🎮
+            </div>
+
+            <h2
+                id="modalTitle"
+                class="modal-title"
+            >
+                TETRIS
+            </h2>
+
+            <p
+                id="modalText"
+                class="text-secondary mt-2"
+            >
+                Siap untuk bermain?
+            </p>
+
+            <div
+                id="finalScore"
+                class="fs-2 fw-bold text-info mb-3"
+            >
+                0
+            </div>
+
+            <button
+                id="modalButton"
+                class="btn-neon px-5"
+                data-bs-dismiss="modal"
+            >
+                START GAME
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+"use strict";
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const $ = id =>
+    document.getElementById(id);
+
+const canvas =
+    $("game");
+
+const ctx =
+    canvas.getContext("2d");
+
+const nextCanvas =
+    $("nextCanvas");
+
+const nextCtx =
+    nextCanvas.getContext("2d");
+
+const holdCanvas =
+    $("holdCanvas");
+
+const holdCtx =
+    holdCanvas.getContext("2d");
+
+const boardShell =
+    $("boardShell");
+
+const pauseOverlay =
+    $("pauseOverlay");
+
+const comboElement =
+    $("combo");
+
+const comboNumber =
+    $("comboNumber");
+
+const levelUpElement =
+    $("levelUp");
+
+const levelUpTitle =
+    $("levelUpTitle");
+
+const winElement =
+    $("win");
+
+const modalElement =
+    $("gameModal");
+
+const modal =
+    new bootstrap.Modal(
+        modalElement
+    );
+
+/* =========================================================
+   CONSTANTS
+========================================================= */
+
+const COLS = 10;
+const ROWS = 20;
+
+const STORAGE_KEY =
+    "tetris-neon-highscore";
+
+const COLORS = [
+    null,
+    "#00e5ff",
+    "#3b82f6",
+    "#f97316",
+    "#facc15",
+    "#22c55e",
+    "#a855f7",
+    "#ef4444"
+];
+
+const LINE_SCORE = [
+    0,
+    100,
+    300,
+    500,
+    800
+];
+
+/*
+    LEVEL SETTINGS
+
+    Setiap 5 line:
+    Level naik 1.
+
+    Contoh:
+    0  - 4   = Level 1
+    5  - 9   = Level 2
+    10 - 14  = Level 3
+    15 - 19  = Level 4
+    dst.
+*/
+
+/* =========================================================
+   PIECES
+========================================================= */
+
+const PIECES = [
+
+    {
+        name: "I",
+        color: 1,
+
+        matrix: [
+            [1,1,1,1]
+        ]
+    },
+
+    {
+        name: "J",
+        color: 2,
+
+        matrix: [
+            [2,0,0],
+            [2,2,2]
+        ]
+    },
+
+    {
+        name: "L",
+        color: 3,
+
+        matrix: [
+            [0,0,3],
+            [3,3,3]
+        ]
+    },
+
+    {
+        name: "O",
+        color: 4,
+
+        matrix: [
+            [4,4],
+            [4,4]
+        ]
+    },
+
+    {
+        name: "S",
+        color: 5,
+
+        matrix: [
+            [0,5,5],
+            [5,5,0]
+        ]
+    },
+
+    {
+        name: "T",
+        color: 6,
+
+        matrix: [
+            [0,6,0],
+            [6,6,6]
+        ]
+    },
+
+    {
+        name: "Z",
+        color: 7,
+
+        matrix: [
+            [7,7,0],
+            [0,7,7]
+        ]
+    }
+];
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+const state = {
+
+    board: [],
+
+    current: null,
+
+    next: null,
+
+    hold: null,
+
+    canHold: true,
+
+    bag: [],
+
+    score: 0,
+
+    lines: 0,
+
+    level: 1,
+
+    combo: 0,
+
+    running: false,
+
+    paused: false,
+
+    dropTimer: 0,
+
+    lastTime: 0,
+
+    animationFrame: null,
+
+    blockSize: 30,
+
+    particles: [],
+
+    audio: null
+};
+
+/* =========================================================
+   UTILITY
+========================================================= */
+
+function cloneMatrix(matrix) {
+
+    return matrix.map(
+        row => [...row]
+    );
+}
+
+function randomItem(array) {
+
+    return array[
+        Math.floor(
+            Math.random() *
+            array.length
+        )
+    ];
+}
+
+function clamp(
+    value,
+    min,
+    max
+) {
+
+    return Math.max(
+        min,
+        Math.min(max,value)
+    );
+}
+
+/* =========================================================
+   BOARD
+========================================================= */
+
+function createBoard() {
+
+    state.board =
+        Array.from(
+            {
+                length: ROWS
+            },
+            () =>
+                Array(COLS).fill(0)
+        );
+}
+
+/* =========================================================
+   BAG
+========================================================= */
+
+function refillBag() {
+
+    state.bag =
+        PIECES.map(
+            (_, index) => index
+        );
+
+    for (
+        let i = state.bag.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
+
+        [
+            state.bag[i],
+            state.bag[j]
+        ] =
+        [
+            state.bag[j],
+            state.bag[i]
+        ];
+    }
+}
+
+function getPiece() {
+
+    if (
+        state.bag.length === 0
+    ) {
+
+        refillBag();
+    }
+
+    const data =
+        PIECES[
+            state.bag.pop()
+        ];
+
+    return {
+
+        name: data.name,
+
+        color: data.color,
+
+        matrix:
+            cloneMatrix(
+                data.matrix
+            ),
+
+        x:
+            Math.floor(
+                (
+                    COLS -
+                    data.matrix[0].length
+                ) / 2
+            ),
+
+        y: 0
+    };
+}
+
+/* =========================================================
+   COLLISION
+========================================================= */
+
+function collide(
+    piece,
+    offsetX = 0,
+    offsetY = 0,
+    matrix = piece.matrix
+) {
+
+    for (
+        let y = 0;
+        y < matrix.length;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < matrix[y].length;
+            x++
+        ) {
+
+            if (!matrix[y][x])
+                continue;
+
+            const boardX =
+                x +
+                piece.x +
+                offsetX;
+
+            const boardY =
+                y +
+                piece.y +
+                offsetY;
+
+            if (
+                boardX < 0 ||
+                boardX >= COLS ||
+                boardY >= ROWS
+            ) {
+
+                return true;
+            }
+
+            if (
+                boardY >= 0 &&
+                state.board[
+                    boardY
+                ][
+                    boardX
+                ] !== 0
+            ) {
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/* =========================================================
+   SPAWN
+========================================================= */
+
+function spawnPiece() {
+
+    state.current =
+        state.next ||
+        getPiece();
+
+    state.next =
+        getPiece();
+
+    state.current.x =
+        Math.floor(
+            (
+                COLS -
+                state.current.matrix[0].length
+            ) / 2
+        );
+
+    state.current.y = 0;
+
+    state.canHold = true;
+
+    drawPreview();
+
+    if (
+        collide(
+            state.current
+        )
+    ) {
+
+        gameOver();
+    }
+}
+
+/* =========================================================
+   MERGE
+========================================================= */
+
+function mergePiece() {
+
+    const piece =
+        state.current;
+
+    piece.matrix.forEach(
+        (row,y) => {
+
+            row.forEach(
+                (value,x) => {
+
+                    if (!value)
+                        return;
+
+                    const boardX =
+                        x + piece.x;
+
+                    const boardY =
+                        y + piece.y;
+
+                    if (
+                        boardY >= 0 &&
+                        boardY < ROWS &&
+                        boardX >= 0 &&
+                        boardX < COLS
+                    ) {
+
+                        state.board[
+                            boardY
+                        ][
+                            boardX
+                        ] = value;
+                    }
+                }
+            );
+        }
+    );
+}
+
+/* =========================================================
+   ROTATE
+========================================================= */
+
+function rotateMatrix(matrix) {
+
+    return matrix[0].map(
+        (_, index) =>
+            matrix
+                .map(
+                    row =>
+                        row[index]
+                )
+                .reverse()
+    );
+}
+
+function rotatePiece() {
+
+    if (
+        !state.running ||
+        state.paused
+    )
+        return;
+
+    const oldMatrix =
+        state.current.matrix;
+
+    const oldX =
+        state.current.x;
+
+    state.current.matrix =
+        rotateMatrix(
+            oldMatrix
+        );
+
+    const kicks = [
+        0,
+        -1,
+        1,
+        -2,
+        2
+    ];
+
+    let success = false;
+
+    for (
+        const kick of kicks
+    ) {
+
+        state.current.x =
+            oldX + kick;
+
+        if (
+            !collide(
+                state.current
+            )
+        ) {
+
+            success = true;
+            break;
+        }
+    }
+
+    if (!success) {
+
+        state.current.matrix =
+            oldMatrix;
+
+        state.current.x =
+            oldX;
+
+        return;
+    }
+
+    playRotateSound();
+}
+
+/* =========================================================
+   MOVEMENT
+========================================================= */
+
+function move(direction) {
+
+    if (
+        !state.running ||
+        state.paused
+    )
+        return;
+
+    state.current.x +=
+        direction;
+
+    if (
+        collide(
+            state.current
+        )
+    ) {
+
+        state.current.x -=
+            direction;
+
+    } else {
+
+        playMoveSound();
+    }
+}
+
+/* =========================================================
+   SOFT DROP
+========================================================= */
+
+function softDrop() {
+
+    if (
+        !state.running ||
+        state.paused
+    )
+        return;
+
+    state.current.y++;
+
+    if (
+        collide(
+            state.current
+        )
+    ) {
+
+        state.current.y--;
+
+        lockPiece();
+
+    } else {
+
+        state.score += 1;
+
+        state.dropTimer = 0;
+    }
+
+    updateUI();
+}
+
+/* =========================================================
+   HARD DROP
+========================================================= */
+
+function getGhostY() {
+
+    const ghost = {
+        ...state.current,
+        matrix:
+            state.current.matrix
+    };
+
+    while (
+        !collide(
+            ghost,
+            0,
+            1
+        )
+    ) {
+
+        ghost.y++;
+    }
+
+    return ghost.y;
+}
+
+function hardDrop() {
+
+    if (
+        !state.running ||
+        state.paused
+    )
+        return;
+
+    const targetY =
+        getGhostY();
+
+    const distance =
+        targetY -
+        state.current.y;
+
+    if (distance > 0) {
+
+        state.current.y =
+            targetY;
+
+        state.score +=
+            distance * 2;
+
+        showScore(
+            "+" +
+            distance * 2
+        );
+    }
+
+    playDropSound();
+
+    lockPiece();
+}
+
+/* =========================================================
+   HOLD
+========================================================= */
+
+function holdPiece() {
+
+    if (
+        !state.running ||
+        state.paused ||
+        !state.canHold
+    )
+        return;
+
+    const current =
+        state.current;
+
+    if (!state.hold) {
+
+        state.hold = {
+
+            name: current.name,
+
+            color: current.color,
+
+            matrix:
+                cloneMatrix(
+                    current.matrix
+                )
+        };
+
+        state.current =
+            state.next;
+
+        state.next =
+            getPiece();
+
+    } else {
+
+        const temp =
+            state.hold;
+
+        state.hold = {
+
+            name: current.name,
+
+            color: current.color,
+
+            matrix:
+                cloneMatrix(
+                    current.matrix
+                )
+        };
+
+        state.current = {
+
+            name: temp.name,
+
+            color: temp.color,
+
+            matrix:
+                cloneMatrix(
+                    temp.matrix
+                )
+        };
+    }
+
+    state.current.x =
+        Math.floor(
+            (
+                COLS -
+                state.current.matrix[0].length
+            ) / 2
+        );
+
+    state.current.y = 0;
+
+    state.canHold = false;
+
+    drawPreview();
+
+    playHoldSound();
+
+    if (
+        collide(
+            state.current
+        )
+    ) {
+
+        gameOver();
+    }
+}
+
+/* =========================================================
+   LOCK
+========================================================= */
+
+function lockPiece() {
+
+    mergePiece();
+
+    const cleared =
+        clearLines();
+
+    if (cleared === 0) {
+
+        state.combo = 0;
+
+    } else {
+
+        state.combo++;
+
+        handleCombo();
+    }
+
+    spawnPiece();
+
+    state.dropTimer = 0;
+}
+
+/* =========================================================
+   CLEAR LINES + LEVEL
+========================================================= */
+
+function clearLines() {
+
+    const rows = [];
+
+    for (
+        let y = ROWS - 1;
+        y >= 0;
+        y--
+    ) {
+
+        if (
+            state.board[y]
+                .every(Boolean)
+        ) {
+
+            rows.push(y);
+        }
+    }
+
+    if (
+        rows.length === 0
+    ) {
+
+        return 0;
+    }
+
+    rows.forEach(
+        row => {
+
+            state.board.splice(
+                row,
+                1
+            );
+
+            state.board.unshift(
+                Array(COLS).fill(0)
+            );
+        }
+    );
+
+    const count =
+        rows.length;
+
+    /*
+        Simpan level sebelum
+        menghitung level baru.
+    */
+
+    const oldLevel =
+        state.level;
+
+    /*
+        Combo multiplier.
+    */
+
+    const multiplier =
+        Math.max(
+            1,
+            state.combo + 1
+        );
+
+    /*
+        Score berdasarkan level
+        sebelum naik.
+    */
+
+    const gained =
+        LINE_SCORE[count] *
+        state.level *
+        multiplier;
+
+    state.score +=
+        gained;
+
+    /*
+        Tambahkan lines.
+    */
+
+    state.lines +=
+        count;
+
+    /*
+        =========================
+        LEVEL UP
+        =========================
+
+        Setiap 5 lines naik level.
+    */
+
+    state.level =
+        Math.floor(
+            state.lines / 5
+        ) + 1;
+
+    /*
+        Efek normal line clear.
+    */
+
+    showScore(
+        "+" + gained
+    );
+
+    flashScore();
+
+    createLineParticles(
+        rows
+    );
+
+    /*
+        TETRIS / 4 LINES.
+    */
+
+    if (count === 4) {
+
+        showTetris();
+
+        playTetrisSound();
+
+        shakeBoard();
+
+    } else {
+
+        playLineSound(count);
+
+        shakeBoard();
+    }
+
+    /*
+        =========================
+        CEK LEVEL UP
+        =========================
+    */
+
+    if (
+        state.level > oldLevel
+    ) {
+
+        /*
+            Bonus level.
+        */
+
+        const levelBonus =
+            state.level * 500;
+
+        state.score +=
+            levelBonus;
+
+        /*
+            Efek visual.
+        */
+
+        showLevelUp();
+
+        showScore(
+            "+" + levelBonus
+        );
+
+        flashScore();
+
+        shakeBoard();
+
+        createVictoryParticles();
+
+        /*
+            Suara level-up.
+        */
+
+        playLevelSound();
+    }
+
+    updateUI();
+
+    return count;
+}
+
+/* =========================================================
+   COMBO
+========================================================= */
+
+function handleCombo() {
+
+    if (
+        state.combo < 2
+    )
+        return;
+
+    comboNumber.textContent =
+        "COMBO x" +
+        state.combo;
+
+    comboElement.classList.remove(
+        "show"
+    );
+
+    void comboElement.offsetWidth;
+
+    comboElement.classList.add(
+        "show"
+    );
+}
+
+/* =========================================================
+   DROP SPEED / LEVEL
+========================================================= */
+
+function getDropInterval() {
+
+    /*
+        LEVEL 1 = 850ms
+        LEVEL 2 = 730ms
+        LEVEL 3 = 610ms
+        LEVEL 4 = 490ms
+        LEVEL 5 = 370ms
+        LEVEL 6 = 250ms
+        LEVEL 7 = 190ms
+        LEVEL 8 = 150ms
+        dst.
+
+        Minimum 55ms.
+
+        Jadi semakin tinggi level,
+        game semakin cepat.
+    */
+
+    const speed =
+        850 -
+        (
+            state.level - 1
+        ) * 120;
+
+    return Math.max(
+        55,
+        speed
+    );
+}
+
+/* =========================================================
+   COLORS
+========================================================= */
+
+function rgb(hex) {
+
+    const value =
+        parseInt(
+            hex.replace("#",""),
+            16
+        );
+
+    return {
+
+        r:
+            (value >> 16) & 255,
+
+        g:
+            (value >> 8) & 255,
+
+        b:
+            value & 255
+    };
+}
+
+function colorAdjust(
+    hex,
+    amount
+) {
+
+    const c =
+        rgb(hex);
+
+    return `rgb(
+        ${clamp(c.r + amount,0,255)},
+        ${clamp(c.g + amount,0,255)},
+        ${clamp(c.b + amount,0,255)}
+    )`;
+}
+
+/* =========================================================
+   DRAW BLOCK
+========================================================= */
+
+function drawBlock(
+    context,
+    x,
+    y,
+    size,
+    colorIndex,
+    alpha = 1
+) {
+
+    const color =
+        COLORS[colorIndex];
+
+    context.save();
+
+    context.globalAlpha =
+        alpha;
+
+    context.shadowColor =
+        color;
+
+    context.shadowBlur =
+        Math.max(
+            5,
+            size * .24
+        );
+
+    const gradient =
+        context.createLinearGradient(
+            x,
+            y,
+            x + size,
+            y + size
+        );
+
+    gradient.addColorStop(
+        0,
+        colorAdjust(color,55)
+    );
+
+    gradient.addColorStop(
+        .25,
+        colorAdjust(color,25)
+    );
+
+    gradient.addColorStop(
+        .6,
+        color
+    );
+
+    gradient.addColorStop(
+        1,
+        colorAdjust(color,-50)
+    );
+
+    context.fillStyle =
+        gradient;
+
+    context.fillRect(
+        x + 1,
+        y + 1,
+        size - 2,
+        size - 2
+    );
+
+    context.shadowBlur = 0;
+
+    context.fillStyle =
+        "rgba(255,255,255,.34)";
+
+    context.fillRect(
+        x + 3,
+        y + 2,
+        size - 6,
+        Math.max(
+            2,
+            size * .07
+        )
+    );
+
+    context.fillStyle =
+        "rgba(255,255,255,.13)";
+
+    context.fillRect(
+        x + 2,
+        y + 4,
+        Math.max(
+            2,
+            size * .06
+        ),
+        size - 8
+    );
+
+    context.fillStyle =
+        "rgba(0,0,0,.3)";
+
+    context.fillRect(
+        x + 3,
+        y + size - 5,
+        size - 6,
+        3
+    );
+
+    context.strokeStyle =
+        "rgba(255,255,255,.18)";
+
+    context.lineWidth = 1;
+
+    context.strokeRect(
+        x + 1,
+        y + 1,
+        size - 2,
+        size - 2
+    );
+
+    context.restore();
+}
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+function resizeCanvas() {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            3
+        );
+
+    canvas.width =
+        Math.floor(
+            rect.width * dpr
+        );
+
+    canvas.height =
+        Math.floor(
+            rect.height * dpr
+        );
+
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+
+    state.blockSize =
+        rect.width / COLS;
+
+    draw();
+}
+
+/* =========================================================
+   DRAW BOARD
+========================================================= */
+
+function draw() {
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+    const bg =
+        ctx.createRadialGradient(
+            width / 2,
+            height / 2,
+            10,
+            width / 2,
+            height / 2,
+            height
+        );
+
+    bg.addColorStop(
+        0,
+        "#071329"
+    );
+
+    bg.addColorStop(
+        .55,
+        "#020617"
+    );
+
+    bg.addColorStop(
+        1,
+        "#00030b"
+    );
+
+    ctx.fillStyle =
+        bg;
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+    drawGrid();
+
+    drawPlacedBlocks();
+
+    if (
+        state.current &&
+        state.running
+    ) {
+
+        drawGhost();
+
+        drawCurrent();
+    }
+
+    drawParticles();
+}
+
+/* =========================================================
+   GRID
+========================================================= */
+
+function drawGrid() {
+
+    const size =
+        state.blockSize;
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+    ctx.strokeStyle =
+        "rgba(0,234,255,.035)";
+
+    ctx.lineWidth = 1;
+
+    for (
+        let x = 0;
+        x <= COLS;
+        x++
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            Math.round(
+                x * size
+            ) + .5,
+            0
+        );
+
+        ctx.lineTo(
+            Math.round(
+                x * size
+            ) + .5,
+            height
+        );
+
+        ctx.stroke();
+    }
+
+    for (
+        let y = 0;
+        y <= ROWS;
+        y++
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            Math.round(
+                y * size
+            ) + .5
+        );
+
+        ctx.lineTo(
+            width,
+            Math.round(
+                y * size
+            ) + .5
+        );
+
+        ctx.stroke();
+    }
+}
+
+/* =========================================================
+   PLACED BLOCKS
+========================================================= */
+
+function drawPlacedBlocks() {
+
+    const size =
+        state.blockSize;
+
+    state.board.forEach(
+        (row,y) => {
+
+            row.forEach(
+                (value,x) => {
+
+                    if (!value)
+                        return;
+
+                    drawBlock(
+                        ctx,
+                        x * size,
+                        y * size,
+                        size,
+                        value
+                    );
+                }
+            );
+        }
+    );
+}
+
+/* =========================================================
+   GHOST
+========================================================= */
+
+function drawGhost() {
+
+    const piece =
+        state.current;
+
+    const ghostY =
+        getGhostY();
+
+    const size =
+        state.blockSize;
+
+    piece.matrix.forEach(
+        (row,y) => {
+
+            row.forEach(
+                (value,x) => {
+
+                    if (!value)
+                        return;
+
+                    const px =
+                        (
+                            x +
+                            piece.x
+                        ) * size;
+
+                    const py =
+                        (
+                            y +
+                            ghostY
+                        ) * size;
+
+                    ctx.save();
+
+                    ctx.fillStyle =
+                        "rgba(255,255,255,.025)";
+
+                    ctx.fillRect(
+                        px + 3,
+                        py + 3,
+                        size - 6,
+                        size - 6
+                    );
+
+                    ctx.strokeStyle =
+                        "rgba(0,234,255,.18)";
+
+                    ctx.strokeRect(
+                        px + 3,
+                        py + 3,
+                        size - 6,
+                        size - 6
+                    );
+
+                    ctx.restore();
+                }
+            );
+        }
+    );
+}
+
+/* =========================================================
+   CURRENT
+========================================================= */
+
+function drawCurrent() {
+
+    const piece =
+        state.current;
+
+    const size =
+        state.blockSize;
+
+    piece.matrix.forEach(
+        (row,y) => {
+
+            row.forEach(
+                (value,x) => {
+
+                    if (!value)
+                        return;
+
+                    drawBlock(
+                        ctx,
+
+                        (
+                            x +
+                            piece.x
+                        ) * size,
+
+                        (
+                            y +
+                            piece.y
+                        ) * size,
+
+                        size,
+
+                        value
+                    );
+                }
+            );
+        }
+    );
+}
+
+/* =========================================================
+   PREVIEW
+========================================================= */
+
+function clearPreview(
+    context,
+    canvasElement
+) {
+
+    context.clearRect(
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
+    );
+
+    context.fillStyle =
+        "rgba(0,0,0,.25)";
+
+    context.fillRect(
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
+    );
+}
+
+function drawMiniPiece(
+    context,
+    canvasElement,
+    piece,
+    size
+) {
+
+    if (!piece)
+        return;
+
+    const matrix =
+        piece.matrix;
+
+    const width =
+        matrix[0].length *
+        size;
+
+    const height =
+        matrix.length *
+        size;
+
+    const offsetX =
+        (
+            canvasElement.width -
+            width
+        ) / 2;
+
+    const offsetY =
+        (
+            canvasElement.height -
+            height
+        ) / 2;
+
+    matrix.forEach(
+        (row,y) => {
+
+            row.forEach(
+                (value,x) => {
+
+                    if (!value)
+                        return;
+
+                    drawBlock(
+                        context,
+
+                        offsetX +
+                        x * size,
+
+                        offsetY +
+                        y * size,
+
+                        size,
+
+                        value
+                    );
+                }
+            );
+        }
+    );
+}
+
+function drawPreview() {
+
+    clearPreview(
+        nextCtx,
+        nextCanvas
+    );
+
+    clearPreview(
+        holdCtx,
+        holdCanvas
+    );
+
+    drawMiniPiece(
+        nextCtx,
+        nextCanvas,
+        state.next,
+        24
+    );
+
+    drawMiniPiece(
+        holdCtx,
+        holdCanvas,
+        state.hold,
+        24
+    );
+}
+
+/* =========================================================
+   GAME PARTICLES
+========================================================= */
+
+function createLineParticles(
+    rows
+) {
+
+    rows.forEach(
+        row => {
+
+            for (
+                let i = 0;
+                i < 30;
+                i++
+            ) {
+
+                state.particles.push({
+
+                    x:
+                        Math.random() *
+                        canvas.clientWidth,
+
+                    y:
+                        row *
+                        state.blockSize,
+
+                    vx:
+                        (
+                            Math.random() -
+                            .5
+                        ) * 5,
+
+                    vy:
+                        -Math.random() * 5 - 1,
+
+                    life: 1,
+
+                    size:
+                        Math.random() * 5 + 2,
+
+                    color:
+                        randomItem([
+                            "#00eaff",
+                            "#8b5cf6",
+                            "#facc15",
+                            "#ec4899",
+                            "#22c55e"
+                        ])
+                });
+            }
+        }
+    );
+}
+
+function createVictoryParticles() {
+
+    for (
+        let i = 0;
+        i < 180;
+        i++
+    ) {
+
+        state.particles.push({
+
+            x:
+                canvas.clientWidth / 2,
+
+            y:
+                canvas.clientHeight / 2,
+
+            vx:
+                (
+                    Math.random() -
+                    .5
+                ) * 14,
+
+            vy:
+                (
+                    Math.random() -
+                    .7
+                ) * 14,
+
+            life: 1,
+
+            size:
+                Math.random() * 7 + 2,
+
+            color:
+                randomItem([
+                    "#00eaff",
+                    "#facc15",
+                    "#ec4899",
+                    "#8b5cf6",
+                    "#22c55e",
+                    "#ffffff"
+                ])
+        });
+    }
+}
+
+function drawParticles() {
+
+    for (
+        let i =
+            state.particles.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const p =
+            state.particles[i];
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        p.vy += .12;
+
+        p.life -= .018;
+
+        if (
+            p.life <= 0
+        ) {
+
+            state.particles.splice(
+                i,
+                1
+            );
+
+            continue;
+        }
+
+        ctx.save();
+
+        ctx.globalAlpha =
+            p.life;
+
+        ctx.fillStyle =
+            p.color;
+
+        ctx.shadowColor =
+            p.color;
+
+        ctx.shadowBlur = 14;
+
+        ctx.fillRect(
+            p.x,
+            p.y,
+            p.size,
+            p.size
+        );
+
+        ctx.restore();
+    }
+}
+
+/* =========================================================
+   EFFECTS
+========================================================= */
+
+function shakeBoard() {
+
+    boardShell.classList.remove(
+        "shake"
+    );
+
+    void boardShell.offsetWidth;
+
+    boardShell.classList.add(
+        "shake"
+    );
+}
+
+function showScore(text) {
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+    element.className =
+        "score-float";
+
+    element.textContent =
+        text;
+
+    element.style.left =
+        (
+            50 +
+            (
+                Math.random() *
+                16 -
+                8
+            )
+        ) + "%";
+
+    element.style.top =
+        "42%";
+
+    document.body.appendChild(
+        element
+    );
+
+    setTimeout(
+        () => element.remove(),
+        1000
+    );
+}
+
+function showLevelUp() {
+
+    levelUpTitle.textContent =
+        "LEVEL " +
+        state.level;
+
+    levelUpElement.classList.remove(
+        "show"
+    );
+
+    void levelUpElement.offsetWidth;
+
+    levelUpElement.classList.add(
+        "show"
+    );
+}
+
+function flashScore() {
+
+    const element =
+        $("scoreStat");
+
+    element.classList.remove(
+        "flash"
+    );
+
+    void element.offsetWidth;
+
+    element.classList.add(
+        "flash"
+    );
+}
+
+function showTetris() {
+
+    winElement.classList.remove(
+        "show"
+    );
+
+    void winElement.offsetWidth;
+
+    winElement.classList.add(
+        "show"
+    );
+
+    createVictoryParticles();
+}
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+function initAudio() {
+
+    if (!state.audio) {
+
+        state.audio =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+    }
+
+    if (
+        state.audio.state ===
+        "suspended"
+    ) {
+
+        state.audio.resume();
+    }
+}
+
+function tone(
+    frequency,
+    duration = .1,
+    type = "sine",
+    volume = .04
+) {
+
+    if (!state.audio)
+        return;
+
+    const oscillator =
+        state.audio.createOscillator();
+
+    const gain =
+        state.audio.createGain();
+
+    oscillator.type =
+        type;
+
+    oscillator.frequency.value =
+        frequency;
+
+    gain.gain.setValueAtTime(
+        volume,
+        state.audio.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        .001,
+        state.audio.currentTime +
+        duration
+    );
+
+    oscillator.connect(gain);
+
+    gain.connect(
+        state.audio.destination
+    );
+
+    oscillator.start();
+
+    oscillator.stop(
+        state.audio.currentTime +
+        duration
+    );
+}
+
+function playMoveSound() {
+
+    tone(
+        220,
+        .04,
+        "square",
+        .02
+    );
+}
+
+function playRotateSound() {
+
+    tone(
+        440,
+        .07,
+        "triangle",
+        .035
+    );
+}
+
+function playDropSound() {
+
+    tone(
+        110,
+        .08,
+        "square",
+        .035
+    );
+}
+
+function playHoldSound() {
+
+    tone(
+        330,
+        .08,
+        "triangle",
+        .04
+    );
+}
+
+function playLineSound(
+    count
+) {
+
+    const notes = [
+        440,
+        554,
+        659,
+        880
+    ];
+
+    for (
+        let i = 0;
+        i < count;
+        i++
+    ) {
+
+        setTimeout(
+            () =>
+                tone(
+                    notes[i],
+                    .12,
+                    "sine",
+                    .065
+                ),
+            i * 65
+        );
+    }
+}
+
+/*
+    Suara khusus LEVEL UP.
+*/
+
+function playLevelSound() {
+
+    const notes = [
+        523,
+        659,
+        784,
+        1046,
+        1318
+    ];
+
+    notes.forEach(
+        (note,index) => {
+
+            setTimeout(
+                () =>
+                    tone(
+                        note,
+                        .16,
+                        "triangle",
+                        .085
+                    ),
+                index * 80
+            );
+        }
+    );
+}
+
+function playTetrisSound() {
+
+    [
+        523,
+        659,
+        784,
+        1046,
+        1318
+    ].forEach(
+        (note,index) => {
+
+            setTimeout(
+                () =>
+                    tone(
+                        note,
+                        .18,
+                        "triangle",
+                        .085
+                    ),
+                index * 85
+            );
+        }
+    );
+}
+
+function playGameOverSound() {
+
+    [
+        440,
+        330,
+        220,
+        130
+    ].forEach(
+        (note,index) => {
+
+            setTimeout(
+                () =>
+                    tone(
+                        note,
+                        .22,
+                        "sawtooth",
+                        .045
+                    ),
+                index * 120
+            );
+        }
+    );
+}
+
+/* =========================================================
+   GAME LOOP
+========================================================= */
+
+function update(
+    time = 0
+) {
+
+    if (
+        !state.running
+    )
+        return;
+
+    const delta =
+        time -
+        state.lastTime;
+
+    state.lastTime =
+        time;
+
+    if (
+        !state.paused
+    ) {
+
+        state.dropTimer +=
+            delta;
+
+        if (
+            state.dropTimer >=
+            getDropInterval()
+        ) {
+
+            softDrop();
+
+            state.dropTimer = 0;
+        }
+    }
+
+    draw();
+
+    state.animationFrame =
+        requestAnimationFrame(
+            update
+        );
+}
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+function startGame() {
+
+    initAudio();
+
+    if (
+        state.animationFrame
+    ) {
+
+        cancelAnimationFrame(
+            state.animationFrame
+        );
+    }
+
+    createBoard();
+
+    state.score = 0;
+    state.lines = 0;
+
+    /*
+        Selalu mulai dari Level 1.
+    */
+
+    state.level = 1;
+
+    state.combo = 0;
+
+    state.hold = null;
+    state.canHold = true;
+
+    state.bag = [];
+
+    state.particles = [];
+
+    state.paused = false;
+
+    state.running = true;
+
+    state.next =
+        getPiece();
+
+    spawnPiece();
+
+    state.dropTimer = 0;
+
+    state.lastTime =
+        performance.now();
+
+    pauseOverlay.classList.remove(
+        "show"
+    );
+
+    updateUI();
+
+    drawPreview();
+
+    draw();
+
+    state.animationFrame =
+        requestAnimationFrame(
+            update
+        );
+
+    modal.hide();
+}
+
+/* =========================================================
+   PAUSE
+========================================================= */
+
+function togglePause() {
+
+    if (
+        !state.running
+    )
+        return;
+
+    state.paused =
+        !state.paused;
+
+    pauseOverlay.classList.toggle(
+        "show",
+        state.paused
+    );
+
+    if (!state.paused) {
+
+        state.lastTime =
+            performance.now();
+    }
+}
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function gameOver() {
+
+    state.running = false;
+
+    state.paused = false;
+
+    if (
+        state.animationFrame
+    ) {
+
+        cancelAnimationFrame(
+            state.animationFrame
+        );
+
+        state.animationFrame =
+            null;
+    }
+
+    playGameOverSound();
+
+    shakeBoard();
+
+    const highScore =
+        Number(
+            localStorage.getItem(
+                STORAGE_KEY
+            ) || 0
+        );
+
+    const record =
+        state.score >
+        highScore;
+
+    if (record) {
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            state.score
+        );
+
+        createVictoryParticles();
+    }
+
+    updateUI();
+
+    $("modalIcon").textContent =
+        record
+            ? "🏆"
+            : "💀";
+
+    $("modalTitle").textContent =
+        record
+            ? "NEW RECORD!"
+            : "GAME OVER";
+
+    $("modalText").textContent =
+        record
+            ? "Skor tertinggi baru!"
+            : "Permainan selesai. Coba lagi!";
+
+    $("finalScore").textContent =
+        "Score: " +
+        state.score;
+
+    $("modalButton").textContent =
+        "PLAY AGAIN";
+
+    setTimeout(
+        () => modal.show(),
+        450
+    );
+}
+
+/* =========================================================
+   UI
+========================================================= */
+
+function updateUI() {
+
+    $("score").textContent =
+        state.score;
+
+    $("level").textContent =
+        state.level;
+
+    $("lines").textContent =
+        state.lines;
+
+    $("highScore").textContent =
+        Number(
+            localStorage.getItem(
+                STORAGE_KEY
+            ) || 0
+        );
+}
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        const key =
+            event.key.toLowerCase();
+
+        const preventKeys = [
+            "arrowleft",
+            "arrowright",
+            "arrowdown",
+            "arrowup",
+            " ",
+            "escape"
+        ];
+
+        if (
+            preventKeys.includes(key)
+        ) {
+
+            event.preventDefault();
+        }
+
+        if (
+            key === "p" ||
+            key === "escape"
+        ) {
+
+            togglePause();
+
+            return;
+        }
+
+        if (
+            key === "enter" &&
+            !state.running
+        ) {
+
+            startGame();
+
+            return;
+        }
+
+        if (
+            !state.running ||
+            state.paused
+        )
+            return;
+
+        switch (key) {
+
+            case "arrowleft":
+
+                move(-1);
+
+                break;
+
+            case "arrowright":
+
+                move(1);
+
+                break;
+
+            case "arrowdown":
+
+                softDrop();
+
+                break;
+
+            case "arrowup":
+
+                if (
+                    !event.repeat
+                ) {
+
+                    rotatePiece();
+                }
+
+                break;
+
+            case " ":
+
+                if (
+                    !event.repeat
+                ) {
+
+                    hardDrop();
+                }
+
+                break;
+
+            case "c":
+
+                if (
+                    !event.repeat
+                ) {
+
+                    holdPiece();
+                }
+
+                break;
+        }
+    }
+);
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+document
+    .querySelectorAll(
+        ".mobile-key"
+    )
+    .forEach(
+        button => {
+
+            const action =
+                button.dataset.action;
+
+            button.addEventListener(
+                "pointerdown",
+                event => {
+
+                    event.preventDefault();
+
+                    if (
+                        !state.running ||
+                        state.paused
+                    )
+                        return;
+
+                    switch(action) {
+
+                        case "left":
+
+                            move(-1);
+
+                            break;
+
+                        case "right":
+
+                            move(1);
+
+                            break;
+
+                        case "down":
+
+                            softDrop();
+
+                            break;
+
+                        case "rotate":
+
+                            rotatePiece();
+
+                            break;
+
+                        case "hold":
+
+                            holdPiece();
+
+                            break;
+
+                        case "drop":
+
+                            hardDrop();
+
+                            break;
+                    }
+                }
+            );
+        }
+    );
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+$("newGameButton")
+    .addEventListener(
+        "click",
+        startGame
+    );
+
+$("modalButton")
+    .addEventListener(
+        "click",
+        startGame
+    );
+
+/* =========================================================
+   BACKGROUND PARTICLES
+========================================================= */
+
+const particleCanvas =
+    $("particles");
+
+const particleCtx =
+    particleCanvas.getContext(
+        "2d"
+    );
+
+let backgroundParticles = [];
+
+function resizeParticles() {
+
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
+    particleCanvas.width =
+        innerWidth * dpr;
+
+    particleCanvas.height =
+        innerHeight * dpr;
+
+    particleCtx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+}
+
+function initBackgroundParticles() {
+
+    backgroundParticles =
+        Array.from(
+            {
+                length:
+                    Math.min(
+                        100,
+                        Math.floor(
+                            innerWidth / 12
+                        )
+                    )
+            },
+            () => ({
+
+                x:
+                    Math.random() *
+                    innerWidth,
+
+                y:
+                    Math.random() *
+                    innerHeight,
+
+                r:
+                    Math.random() *
+                    1.5 + .3,
+
+                speed:
+                    Math.random() *
+                    .25 + .05,
+
+                alpha:
+                    Math.random() *
+                    .5 + .1
+            })
+        );
+}
+
+function animateBackground() {
+
+    particleCtx.clearRect(
+        0,
+        0,
+        innerWidth,
+        innerHeight
+    );
+
+    backgroundParticles.forEach(
+        p => {
+
+            p.y -= p.speed;
+
+            if (
+                p.y < -5
+            ) {
+
+                p.y =
+                    innerHeight + 5;
+
+                p.x =
+                    Math.random() *
+                    innerWidth;
+            }
+
+            particleCtx.beginPath();
+
+            particleCtx.arc(
+                p.x,
+                p.y,
+                p.r,
+                0,
+                Math.PI * 2
+            );
+
+            particleCtx.fillStyle =
+                `rgba(
+                    0,
+                    234,
+                    255,
+                    ${p.alpha}
+                )`;
+
+            particleCtx.shadowColor =
+                "#00eaff";
+
+            particleCtx.shadowBlur = 8;
+
+            particleCtx.fill();
+        }
+    );
+
+    requestAnimationFrame(
+        animateBackground
+    );
+}
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        resizeCanvas();
+
+        resizeParticles();
+
+        initBackgroundParticles();
+    }
+);
+
+/* =========================================================
+   INIT
+========================================================= */
+
+createBoard();
+
+resizeCanvas();
+
+resizeParticles();
+
+initBackgroundParticles();
+
+animateBackground();
+
+updateUI();
+
+drawPreview();
+
+draw();
+
+/* =========================================================
+   INITIAL MODAL
+========================================================= */
+
+window.addEventListener(
+    "load",
+    () => {
+
+        setTimeout(
+            () => {
+
+                $("modalIcon")
+                    .textContent =
+                    "🎮";
+
+                $("modalTitle")
+                    .textContent =
+                    "TETRIS";
+
+                $("modalText")
+                    .textContent =
+                    "Siap untuk bermain?";
+
+                $("finalScore")
+                    .textContent =
+                    "0";
+
+                $("modalButton")
+                    .textContent =
+                    "START GAME";
+
+                modal.show();
+
+            },
+            300
+        );
+    }
+);
+</script>
+
+</body>
+</html>
