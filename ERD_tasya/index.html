@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TokoKita - Sistem Penjualan Online</title>
+<style>
+:root{
+  --primary:#6c63ff;--primary2:#5148e5;--bg:#f5f6fb;--card:#fff;
+  --text:#202438;--muted:#74798c;--danger:#ef476f;--success:#19a974;
+  --border:#e7e8f0;--shadow:0 12px 30px rgba(35,35,70,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0}
+.app{display:flex;min-height:100vh}
+.sidebar{width:245px;background:#171a2b;color:#fff;padding:22px 16px;position:fixed;inset:0 auto 0 0;z-index:20}
+.logo{font-size:22px;font-weight:800;padding:8px 12px 25px}
+.logo span{color:#9b95ff}
+.nav button{width:100%;padding:13px 14px;margin:4px 0;background:transparent;color:#c9ccdc;text-align:left;border-radius:10px}
+.nav button:hover,.nav button.active{background:#292d46;color:#fff}
+.main{margin-left:245px;width:calc(100% - 245px);padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}
+.topbar h1{margin:0;font-size:26px}
+.topbar p{margin:5px 0 0;color:var(--muted)}
+.badge{padding:8px 12px;background:#ecebff;color:var(--primary2);border-radius:20px;font-size:13px;font-weight:700}
+.section{display:none}.section.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.stat{background:var(--card);padding:20px;border-radius:15px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat .icon{font-size:25px}.stat small{display:block;color:var(--muted);margin-top:8px}.stat strong{font-size:25px;display:block;margin-top:3px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow);padding:20px;margin-bottom:20px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+.panel h2{margin:0;font-size:18px}
+.btn{padding:10px 14px;border-radius:9px;font-weight:700;background:var(--primary);color:#fff}
+.btn:hover{background:var(--primary2)}
+.btn.secondary{background:#ecebff;color:var(--primary2)}
+.btn.danger{background:#ffe9ee;color:#c92d52}
+.btn.success{background:#e6faf1;color:#08794e}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+input,select,textarea{border:1px solid var(--border);border-radius:9px;padding:10px 12px;background:#fff;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}
+.search{min-width:230px;flex:1}
+table{width:100%;border-collapse:collapse}
+th,td{padding:13px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:14px}
+th{color:var(--muted);font-size:12px;text-transform:uppercase}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.empty{text-align:center;color:var(--muted);padding:35px}
+.product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.product{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.product-img{height:155px;background:linear-gradient(135deg,#eeeaff,#f7f7ff);display:flex;align-items:center;justify-content:center;font-size:55px}
+.product-body{padding:15px}.product-body h3{font-size:16px;margin:0 0 6px}.product-body p{margin:0;color:var(--muted);font-size:13px}
+.price{font-weight:800;font-size:18px;color:var(--primary2);margin:10px 0}
+.tag{display:inline-block;padding:4px 8px;border-radius:15px;background:#f0f0f7;color:#62667b;font-size:11px}
+.status{padding:5px 9px;border-radius:15px;font-size:11px;font-weight:700;display:inline-block}
+.status.Baru{background:#ecebff;color:#5148e5}.status.Diproses{background:#fff3d9;color:#a36a00}
+.status.Dikirim{background:#e5f3ff;color:#1670ad}.status.Selesai{background:#e5faef;color:#08794e}
+.status.Batal{background:#ffe8ed;color:#c92d52}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,18,35,.55);z-index:50;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}.modal-box{background:#fff;border-radius:16px;width:min(600px,100%);max-height:90vh;overflow:auto;padding:22px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.modal-head h2{margin:0}
+.close{background:#f0f1f5;width:34px;height:34px;border-radius:50%;font-size:20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:13px;font-weight:700}
+.alert{padding:12px 14px;border-radius:9px;margin-bottom:15px;background:#e9f8f0;color:#08794e}
+.order-box{background:#fafaff;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.footer-note{color:var(--muted);font-size:12px;margin-top:20px}
+@media(max-width:1050px){.cards{grid-template-columns:repeat(2,1fr)}.product-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){
+ .sidebar{width:70px;padding:14px 8px}.logo{font-size:0;text-align:center;padding:8px 0 20px}.logo:after{content:"🛍️";font-size:25px}
+ .nav button{font-size:0;text-align:center;padding:13px 5px}.nav button::first-letter{font-size:20px}
+ .main{margin-left:70px;width:calc(100% - 70px);padding:16px}.cards{grid-template-columns:1fr 1fr}.product-grid{grid-template-columns:1fr 1fr}
+ .topbar h1{font-size:21px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}table{min-width:700px}.panel{overflow:auto}
+}
+@media(max-width:480px){.cards,.product-grid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div class="app">
+<aside class="sidebar">
+  <div class="logo">Toko<span>Kita</span></div>
+  <nav class="nav">
+    <button class="active" onclick="showSection('dashboard',this)">🏠 Dashboard</button>
+    <button onclick="showSection('produk',this)">📦 Produk</button>
+    <button onclick="showSection('kategori',this)">🗂️ Kategori</button>
+    <button onclick="showSection('pelanggan',this)">👤 Pelanggan</button>
+    <button onclick="showSection('order',this)">🛒 Order</button>
+    <button onclick="showSection('pembayaran',this)">💳 Pembayaran</button>
+    <button onclick="showSection('pengiriman',this)">🚚 Pengiriman</button>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div><h1 id="pageTitle">Dashboard</h1><p>Sistem Penjualan Online berbasis ERD</p></div>
+    <div class="badge">HTML + CSS + JavaScript</div>
+  </div>
+
+  <section id="dashboard" class="section active">
+    <div class="cards">
+      <div class="stat"><div class="icon">👤</div><small>Total Pelanggan</small><strong id="statPelanggan">0</strong></div>
+      <div class="stat"><div class="icon">📦</div><small>Total Produk</small><strong id="statProduk">0</strong></div>
+      <div class="stat"><div class="icon">🛒</div><small>Total Order</small><strong id="statOrder">0</strong></div>
+      <div class="stat"><div class="icon">💰</div><small>Total Penjualan</small><strong id="statPenjualan">Rp0</strong></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>🛍️ Produk Terbaru</h2><button class="btn" onclick="showSection('produk')">Lihat Produk</button></div>
+      <div id="dashboardProducts" class="product-grid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>📊 Alur ERD</h2></div>
+      <p><b>Pelanggan</b> → membuat <b>Order</b> → memiliki <b>Detail Order</b> → memilih <b>Produk</b> → melakukan <b>Pembayaran</b> → diproses melalui <b>Pengiriman</b>.</p>
+      <p class="footer-note">Data demo disimpan otomatis di localStorage browser, sehingga aplikasi dapat dipakai tanpa server/database.</p>
+    </div>
+  </section>
+
+  <section id="produk" class="section">
+    <div class="panel">
+      <div class="panel-head"><h2>📦 Data Produk</h2><button class="btn" onclick="openProductModal()">+ Tambah Produk</button></div>
+      <div class="toolbar"><input class="search" id="productSearch" placeholder="Cari nama produk..." oninput="renderProducts()"><select id="productCategory" onchange="renderProducts()"><option value="">Semua kategori</option></select></div>
+      <div id="productGrid" class="product-grid"></div>
+    </div>
+  </section>
+
+  <section id="kategori" class="section">
+    <div class="panel">
+      <div class="panel-head"><h2>🗂️ Data Kategori</h2><button class="btn" onclick="addCategory()">+ Tambah Kategori</button></div>
+      <div id="categoryTable"></div>
+    </div>
+  </section>
+
+  <section id="pelanggan" class="section">
+    <div class="panel">
+      <div class="panel-head"><h2>👤 Data Pelanggan</h2><button class="btn" onclick="openCustomerModal()">+ Tambah Pelanggan</button></div>
+      <div class="toolbar"><input class="search" id="customerSearch" placeholder="Cari pelanggan..." oninput="renderCustomers()"></div>
+      <div id="customerTable"></div>
+    </div>
+  </section>
+
+  <section id="order" class="section">
+    <div class="panel">
+      <div class="panel-head"><h2>🛒 Data Order</h2><button class="btn" onclick="openOrderModal()">+ Buat Order</button></div>
+      <div id="orderTable"></div>
+    </div>
+  </section>
+
+  <section id="pembayaran" class="section">
+    <div class="panel">
+      <div class="panel-head"><h2>💳 Data Pembayaran</h2></div>
+      <div id="paymentTable"></div>
+    </div>
+  </section>
+
+  <section id="pengiriman" class="section">
+    <div class="panel">
+      <div class="panel-head"><h2>🚚 Data Pengiriman</h2></div>
+      <div id="shippingTable"></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<!-- MODAL PRODUK -->
+<div class="modal" id="productModal"><div class="modal-box">
+ <div class="modal-head"><h2 id="productModalTitle">Tambah Produk</h2><button class="close" onclick="closeModal('productModal')">×</button></div>
+ <form onsubmit="saveProduct(event)">
+  <input type="hidden" id="productId">
+  <div class="form-grid">
+   <div class="field"><label>Nama Produk</label><input id="productName" required></div>
+   <div class="field"><label>Kategori</label><select id="productCat" required></select></div>
+   <div class="field"><label>Harga</label><input id="productPrice" type="number" min="0" required></div>
+   <div class="field"><label>Stok</label><input id="productStock" type="number" min="0" required></div>
+   <div class="field full"><label>Deskripsi</label><textarea id="productDesc" rows="3"></textarea></div>
+  </div><br><button class="btn">Simpan Produk</button>
+ </form>
+</div></div>
+
+<!-- MODAL PELANGGAN -->
+<div class="modal" id="customerModal"><div class="modal-box">
+ <div class="modal-head"><h2>Tambah Pelanggan</h2><button class="close" onclick="closeModal('customerModal')">×</button></div>
+ <form onsubmit="saveCustomer(event)">
+  <div class="form-grid">
+   <div class="field"><label>Nama</label><input id="customerName" required></div>
+   <div class="field"><label>Email</label><input id="customerEmail" type="email" required></div>
+   <div class="field"><label>No. HP</label><input id="customerPhone" required></div>
+   <div class="field full"><label>Alamat</label><textarea id="customerAddress" rows="3" required></textarea></div>
+  </div><br><button class="btn">Simpan Pelanggan</button>
+ </form>
+</div></div>
+
+<!-- MODAL ORDER -->
+<div class="modal" id="orderModal"><div class="modal-box">
+ <div class="modal-head"><h2>Buat Order Baru</h2><button class="close" onclick="closeModal('orderModal')">×</button></div>
+ <form onsubmit="saveOrder(event)">
+  <div class="field"><label>Pelanggan</label><select id="orderCustomer" required></select></div><br>
+  <div class="field"><label>Produk</label><select id="orderProduct" required onchange="updateOrderTotal()"></select></div><br>
+  <div class="form-grid">
+   <div class="field"><label>Jumlah</label><input id="orderQty" type="number" value="1" min="1" required oninput="updateOrderTotal()"></div>
+   <div class="field"><label>Total</label><input id="orderTotal" readonly></div>
+  </div><br><button class="btn">Buat Order</button>
+ </form>
+</div></div>
+
+<script>
+const defaultData = {
+ categories:[
+  {id:1,name:"Fashion",desc:"Pakaian dan aksesoris"},
+  {id:2,name:"Elektronik",desc:"Perangkat elektronik"},
+  {id:3,name:"Aksesoris",desc:"Aksesoris sehari-hari"}
+ ],
+ products:[
+  {id:1,name:"Kaos Oversize",cat:1,price:75000,stock:20,desc:"Kaos nyaman untuk sehari-hari",icon:"👕"},
+  {id:2,name:"Hoodie Premium",cat:1,price:150000,stock:12,desc:"Hoodie hangat dan stylish",icon:"🧥"},
+  {id:3,name:"Headset Bluetooth",cat:2,price:125000,stock:15,desc:"Headset wireless dengan suara jernih",icon:"🎧"},
+  {id:4,name:"Jam Tangan",cat:3,price:99000,stock:8,desc:"Jam tangan casual",icon:"⌚"}
+ ],
+ customers:[
+  {id:1,name:"Andi",email:"andi@email.com",phone:"08123456789",address:"Medan"},
+  {id:2,name:"Budi",email:"budi@email.com",phone:"08234567890",address:"Jakarta"}
+ ],
+ orders:[
+  {id:1001,customer:1,product:1,qty:2,total:150000,date:"2026-08-28",status:"Selesai"},
+  {id:1002,customer:2,product:3,qty:1,total:125000,date:"2026-08-29",status:"Diproses"}
+ ],
+ payments:[
+  {id:1,order:1001,date:"2026-08-28",method:"Transfer Bank",amount:150000,status:"Lunas"},
+  {id:2,order:1002,date:"2026-08-29",method:"E-Wallet",amount:125000,status:"Menunggu"}
+ ],
+ shipments:[
+  {id:1,order:1001,date:"2026-08-29",courier:"JNE",resi:"JNE123456",status:"Dikirim"},
+  {id:2,order:1002,date:"-",courier:"-",resi:"-",status:"Menunggu"}
+ ]
+};
+
+let db = JSON.parse(localStorage.getItem("tokokitaDB")) || defaultData;
+function persist(){localStorage.setItem("tokokitaDB",JSON.stringify(db));}
+function rupiah(n){return new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n)}
+function categoryName(id){return db.categories.find(x=>x.id==id)?.name || "Tanpa Kategori"}
+function customerName(id){return db.customers.find(x=>x.id==id)?.name || "-"}
+function productName(id){return db.products.find(x=>x.id==id)?.name || "-"}
+function showSection(id,btn){
+ document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));
+ if(btn) btn.classList.add("active");
+ const titles={dashboard:"Dashboard",produk:"Produk",kategori:"Kategori",pelanggan:"Pelanggan",order:"Order",pembayaran:"Pembayaran",pengiriman:"Pengiriman"};
+ document.getElementById("pageTitle").textContent=titles[id];
+ renderAll();
+}
+function openModal(id){document.getElementById(id).classList.add("show")}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+function renderAll(){renderStats();renderProducts();renderCustomers();renderCategories();renderOrders();renderPayments();renderShipments();renderDashboardProducts();fillSelects()}
+function renderStats(){
+ document.getElementById("statPelanggan").textContent=db.customers.length;
+ document.getElementById("statProduk").textContent=db.products.length;
+ document.getElementById("statOrder").textContent=db.orders.length;
+ document.getElementById("statPenjualan").textContent=rupiah(db.orders.filter(o=>o.status!=="Batal").reduce((a,b)=>a+b.total,0));
+}
+function productCard(p){
+ return `<div class="product"><div class="product-img">${p.icon||"📦"}</div><div class="product-body">
+ <span class="tag">${categoryName(p.cat)}</span><h3>${esc(p.name)}</h3><p>${esc(p.desc||"Tidak ada deskripsi")}</p>
+ <div class="price">${rupiah(p.price)}</div><p>Stok: <b>${p.stock}</b></p>
+ <br><button class="btn secondary" onclick="openProductModal(${p.id})">✏️ Edit</button>
+ <button class="btn danger" onclick="deleteProduct(${p.id})">🗑️</button></div></div>`;
+}
+function renderProducts(){
+ const q=(document.getElementById("productSearch")?.value||"").toLowerCase();
+ const cat=document.getElementById("productCategory")?.value||"";
+ let list=db.products.filter(p=>(p.name.toLowerCase().includes(q))&&(!cat||p.cat==cat));
+ document.getElementById("productGrid").innerHTML=list.length?list.map(productCard).join():'<div class="empty">Produk tidak ditemukan.</div>';
+}
+function renderDashboardProducts(){document.getElementById("dashboardProducts").innerHTML=db.products.slice(-4).reverse().map(productCard).join("")}
+function renderCategories(){
+ if(!db.categories.length){document.getElementById("categoryTable").innerHTML='<div class="empty">Belum ada kategori.</div>';return}
+ document.getElementById("categoryTable").innerHTML=`<table><thead><tr><th>ID</th><th>Nama</th><th>Deskripsi</th><th>Jumlah Produk</th><th>Aksi</th></tr></thead><tbody>
+ ${db.categories.map(c=>`<tr><td>${c.id}</td><td><b>${esc(c.name)}</b></td><td>${esc(c.desc)}</td><td>${db.products.filter(p=>p.cat==c.id).length}</td><td><button class="btn danger" onclick="deleteCategory(${c.id})">Hapus</button></td></tr>`).join("")}</tbody></table>`;
+}
+function renderCustomers(){
+ const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();
+ let list=db.customers.filter(c=>(c.name+c.email+c.phone).toLowerCase().includes(q));
+ document.getElementById("customerTable").innerHTML=list.length?`<table><thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>No. HP</th><th>Alamat</th><th>Aksi</th></tr></thead><tbody>
+ ${list.map(c=>`<tr><td>${c.id}</td><td><b>${esc(c.name)}</b></td><td>${esc(c.email)}</td><td>${esc(c.phone)}</td><td>${esc(c.address)}</td><td><button class="btn danger" onclick="deleteCustomer(${c.id})">Hapus</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty">Belum ada pelanggan.</div>';
+}
+function renderOrders(){
+ document.getElementById("orderTable").innerHTML=db.orders.length?`<table><thead><tr><th>Order</th><th>Pelanggan</th><th>Produk</th><th>Qty</th><th>Total</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+ ${db.orders.map(o=>`<tr><td><b>#${o.id}</b></td><td>${esc(customerName(o.customer))}</td><td>${esc(productName(o.product))}</td><td>${o.qty}</td><td>${rupiah(o.total)}</td><td>${o.date}</td><td><span class="status ${o.status}">${o.status}</span></td><td><button class="btn secondary" onclick="nextOrderStatus(${o.id})">Ubah Status</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty">Belum ada order.</div>';
+}
+function renderPayments(){
+ document.getElementById("paymentTable").innerHTML=db.payments.length?`<table><thead><tr><th>ID</th><th>Order</th><th>Tanggal</th><th>Metode</th><th>Jumlah</th><th>Status</th></tr></thead><tbody>
+ ${db.payments.map(p=>`<tr><td>${p.id}</td><td>#${p.order}</td><td>${p.date}</td><td>${esc(p.method)}</td><td>${rupiah(p.amount)}</td><td>${p.status}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">Belum ada pembayaran.</div>';
+}
+function renderShipments(){
+ document.getElementById("shippingTable").innerHTML=db.shipments.length?`<table><thead><tr><th>ID</th><th>Order</th><th>Tanggal</th><th>Kurir</th><th>No. Resi</th><th>Status</th></tr></thead><tbody>
+ ${db.shipments.map(s=>`<tr><td>${s.id}</td><td>#${s.order}</td><td>${s.date}</td><td>${esc(s.courier)}</td><td>${esc(s.resi)}</td><td><span class="status ${s.status==='Dikirim'?'Dikirim':'Diproses'}">${s.status}</span></td></tr>`).join("")}</tbody></table>`:'<div class="empty">Belum ada pengiriman.</div>';
+}
+function fillSelects(){
+ const catOptions=db.categories.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+ const pc=document.getElementById("productCat"), pf=document.getElementById("productCategory");
+ if(pc) pc.innerHTML=catOptions; if(pf){let old=pf.value;pf.innerHTML='<option value="">Semua kategori</option>'+catOptions;pf.value=old}
+ const co=document.getElementById("orderCustomer"), po=document.getElementById("orderProduct");
+ if(co)co.innerHTML=db.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+ if(po)po.innerHTML=db.products.filter(p=>p.stock>0).map(p=>`<option value="${p.id}">${esc(p.name)} — ${rupiah(p.price)} (stok ${p.stock})</option>`).join("");
+}
+function openProductModal(id=null){
+ fillSelects();document.getElementById("productId").value=id||"";
+ document.getElementById("productModalTitle").textContent=id?"Edit Produk":"Tambah Produk";
+ if(id){let p=db.products.find(x=>x.id==id);document.getElementById("productName").value=p.name;document.getElementById("productCat").value=p.cat;document.getElementById("productPrice").value=p.price;document.getElementById("productStock").value=p.stock;document.getElementById("productDesc").value=p.desc}
+ else document.querySelector("#productModal form").reset();
+ openModal("productModal");
+}
+function saveProduct(e){
+ e.preventDefault();let id=document.getElementById("productId").value;
+ const data={name:document.getElementById("productName").value,cat:+document.getElementById("productCat").value,price:+document.getElementById("productPrice").value,stock:+document.getElementById("productStock").value,desc:document.getElementById("productDesc").value,icon:"📦"};
+ if(id){Object.assign(db.products.find(p=>p.id==id),data)}else{data.id=Date.now();db.products.push(data)}
+ persist();closeModal("productModal");renderAll();
+}
+function deleteProduct(id){if(confirm("Hapus produk ini?")){db.products=db.products.filter(p=>p.id!=id);persist();renderAll()}}
+function addCategory(){
+ const name=prompt("Nama kategori:");if(!name)return;
+ const desc=prompt("Deskripsi kategori:")||"";
+ db.categories.push({id:Date.now(),name,desc});persist();renderAll();
+}
+function deleteCategory(id){
+ if(db.products.some(p=>p.cat==id)){alert("Kategori tidak bisa dihapus karena masih digunakan produk.");return}
+ if(confirm("Hapus kategori?")){db.categories=db.categories.filter(c=>c.id!=id);persist();renderAll()}
+}
+function openCustomerModal(){document.querySelector("#customerModal form").reset();openModal("customerModal")}
+function saveCustomer(e){
+ e.preventDefault();db.customers.push({id:Date.now(),name:customerNameInput(),email:customerEmail.value,phone:customerPhone.value,address:customerAddress.value});
+ persist();closeModal("customerModal");renderAll();
+}
+function customerNameInput(){return document.getElementById("customerName").value}
+function deleteCustomer(id){
+ if(db.orders.some(o=>o.customer==id)){alert("Pelanggan tidak bisa dihapus karena memiliki order.");return}
+ if(confirm("Hapus pelanggan?")){db.customers=db.customers.filter(c=>c.id!=id);persist();renderAll()}
+}
+function openOrderModal(){fillSelects();if(!db.customers.length||!db.products.some(p=>p.stock>0)){alert("Tambahkan pelanggan dan produk yang stoknya tersedia terlebih dahulu.");return}updateOrderTotal();openModal("orderModal")}
+function updateOrderTotal(){
+ const p=db.products.find(x=>x.id==document.getElementById("orderProduct").value),q=+(document.getElementById("orderQty").value||1);
+ if(p)document.getElementById("orderTotal").value=rupiah(p.price*q);
+}
+function saveOrder(e){
+ e.preventDefault();
+ const customer=+document.getElementById("orderCustomer").value,product=+document.getElementById("orderProduct").value,qty=+document.getElementById("orderQty").value;
+ const p=db.products.find(x=>x.id==product);if(!p||qty>p.stock){alert("Jumlah melebihi stok.");return}
+ const id=Math.floor(1000+Math.random()*9000),total=p.price*qty;
+ p.stock-=qty;db.orders.push({id,customer,product,qty,total,date:new Date().toISOString().slice(0,10),status:"Baru"});
+ db.payments.push({id:Date.now(),order:id,date:new Date().toISOString().slice(0,10),method:"Belum dipilih",amount:total,status:"Menunggu"});
+ db.shipments.push({id:Date.now()+1,order:id,date:"-",courier:"-",resi:"-",status:"Menunggu"});
+ persist();closeModal("orderModal");renderAll();alert("Order #"+id+" berhasil dibuat!");
+}
+function nextOrderStatus(id){
+ const o=db.orders.find(x=>x.id==id),states=["Baru","Diproses","Dikirim","Selesai"];
+ let i=states.indexOf(o.status);o.status=states[(i+1)%states.length];
+ if(o.status==="Dikirim"){let s=db.shipments.find(x=>x.order==id);if(s){s.status="Dikirim";s.date=new Date().toISOString().slice(0,10);s.courier="JNE";s.resi="JNE"+Math.floor(Math.random()*900000+100000)}}
+ persist();renderAll();
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+window.addEventListener("click",e=>{if(e.target.classList.contains("modal"))e.target.classList.remove("show")});
+renderAll();
+</script>
+</body>
+</html>
