@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selamat Ulang Tahun, Bg Oloan</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+:root {
+    --bg-dark:#1a0f14;
+    --card-bg:#26161f;
+    --accent-pink:#e84393;
+    --accent-pink-glow:rgba(232,67,147,.4);
+    --accent-light:#ff7675;
+    --gold:#ffeaa7;
+    --text-main:#f5f6fa;
+    --text-sub:#dcdde1;
+    --text-muted:#a4b0be;
+    --font-title:'Playfair Display',serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+}
+
+* {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:var(--font-body);
+    -webkit-tap-highlight-color:transparent;
+}
+
+html {
+    scroll-behavior:smooth;
+    scroll-padding-top:75px;
+}
+
+body {
+    background:var(--bg-dark);
+    color:var(--text-main);
+    overflow-x:hidden;
+    min-height:100vh;
+}
+
+/* BACKGROUND */
+
+.ambient-bg {
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    overflow:hidden;
+}
+
+.floating-petal {
+    position:absolute;
+    background:radial-gradient(circle,var(--accent-light),var(--accent-pink));
+    border-radius:150% 0 150% 0;
+    opacity:.3;
+    animation:floatDown linear infinite;
+}
+
+@keyframes floatDown {
+    0% {transform:translateY(-10vh) rotate(0deg);opacity:0;}
+    10%,90% {opacity:.4;}
+    100% {transform:translateY(110vh) rotate(360deg);opacity:0;}
+}
+
+/* SCREEN */
+
+.screen {
+    display:none;
+    min-height:100vh;
+    width:100%;
+    position:relative;
+    z-index:2;
+}
+
+.screen.active {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+/* PIN */
+
+.lock-card {
+    background:rgba(38,22,31,.88);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(232,67,147,.25);
+    padding:40px 30px;
+    border-radius:28px;
+    text-align:center;
+    width:90%;
+    max-width:380px;
+    box-shadow:0 20px 50px rgba(0,0,0,.6),0 0 30px rgba(232,67,147,.15);
+}
+
+.lock-icon {
+    font-size:32px;
+    color:var(--accent-pink);
+    margin-bottom:12px;
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse {
+    50% {transform:scale(1.15);}
+}
+
+.lock-card h2 {
+    font-family:var(--font-title);
+    font-size:24px;
+    margin-bottom:6px;
+}
+
+.lock-card p {
+    color:var(--text-muted);
+    font-size:13px;
+    margin-bottom:24px;
+}
+
+.pin-dots {
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin-bottom:28px;
+}
+
+.dot {
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    border:2px solid var(--accent-pink);
+    transition:.2s;
+}
+
+.dot.filled {
+    background:var(--accent-pink);
+    box-shadow:0 0 12px var(--accent-pink);
+}
+
+.dot.error {
+    background:#ff4757;
+    border-color:#ff4757;
+    animation:shake .4s;
+}
+
+@keyframes shake {
+    20%,60% {transform:translateX(-6px);}
+    40%,80% {transform:translateX(6px);}
+}
+
+.keypad {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    max-width:280px;
+    margin:auto;
+}
+
+.key {
+    aspect-ratio:1;
+    border-radius:50%;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+    color:white;
+    font-size:20px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.key:hover,.key:active {
+    background:var(--accent-pink);
+    transform:scale(.92);
+}
+
+/* GIFT */
+
+.gift-container {
+    text-align:center;
+    cursor:pointer;
+}
+
+.gift-instruction {
+    font-size:18px;
+    color:var(--gold);
+    margin-bottom:35px;
+    animation:bounce 1.8s infinite;
+}
+
+@keyframes bounce {
+    50% {transform:translateY(-10px);}
+}
+
+.gift-box {
+    width:140px;
+    height:140px;
+    position:relative;
+    margin:auto;
+    transition:.4s;
+}
+
+.gift-box:hover {transform:scale(1.08);}
+
+.gift-body {
+    width:100%;
+    height:100px;
+    position:absolute;
+    bottom:0;
+    background:linear-gradient(135deg,#e84393,#c2185b);
+    border-radius:0 0 16px 16px;
+    box-shadow:0 15px 35px rgba(232,67,147,.4);
+}
+
+.gift-lid {
+    width:154px;
+    height:36px;
+    background:#fd79a8;
+    position:absolute;
+    top:10px;
+    left:-7px;
+    border-radius:8px;
+    z-index:2;
+}
+
+.gift-ribbon-v {
+    width:26px;
+    height:100%;
+    background:var(--gold);
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+}
+
+.gift-bow {
+    width:50px;
+    height:30px;
+    position:absolute;
+    top:-20px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:3;
+}
+
+.gift-bow:before,.gift-bow:after {
+    content:'';
+    position:absolute;
+    width:26px;
+    height:26px;
+    border:5px solid var(--gold);
+    border-radius:50% 50% 0 50%;
+}
+
+.gift-bow:before {left:0;transform:rotate(45deg);}
+.gift-bow:after {right:0;transform:rotate(-45deg) scaleX(-1);}
+
+/* BLOOM */
+
+.bloom-overlay {
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:999;
+    opacity:0;
+    transition:.5s;
+}
+
+.bloom-overlay.active {opacity:1;}
+
+.bloom-flower {
+    position:absolute;
+    font-size:55px;
+    animation:bloomPop 1.2s ease forwards;
+}
+
+@keyframes bloomPop {
+    0% {transform:scale(0) rotate(0);opacity:0;}
+    50% {opacity:1;}
+    100% {transform:scale(3.5) rotate(180deg);opacity:0;}
+}
+
+/* MAIN */
+
+#main-content {
+    display:none;
+    width:100%;
+    opacity:0;
+    transition:opacity .8s;
+    position:relative;
+    z-index:2;
+}
+
+#main-content.visible {
+    display:block;
+    opacity:1;
+}
+
+.section-tag {
+    font-size:11px;
+    letter-spacing:3px;
+    color:var(--accent-pink);
+    margin-bottom:8px;
+    display:block;
+    font-weight:600;
+}
+
+.section-title {
+    font-family:var(--font-title);
+    font-size:32px;
+    margin-bottom:8px;
+}
+
+.section-desc {
+    color:var(--text-muted);
+    font-size:14px;
+    margin-bottom:35px;
+}
+
+section {
+    padding:60px 20px;
+    max-width:800px;
+    margin:auto;
+    text-align:center;
+}
+
+/* NAVIGATION */
+
+.birthday-nav {
+    position:sticky;
+    top:0;
+    z-index:20;
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:12px 10px;
+    background:rgba(26,15,20,.92);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(232,67,147,.18);
+}
+
+.birthday-nav a {
+    color:var(--text-sub);
+    text-decoration:none;
+    font-size:12px;
+    padding:8px 12px;
+    border:1px solid rgba(232,67,147,.25);
+    border-radius:20px;
+    transition:.25s;
+}
+
+.birthday-nav a:hover {
+    color:white;
+    background:var(--accent-pink);
+}
+
+/* HERO */
+
+.hero-section {
+    padding-top:80px;
+    padding-bottom:40px;
+}
+
+.hero-title {
+    font-family:var(--font-title);
+    font-size:52px;
+    line-height:1.1;
+    margin:15px 0;
+    font-weight:700;
+}
+
+.hero-title span {
+    color:var(--accent-pink);
+    font-style:italic;
+}
+
+.hero-date {
+    font-size:12px;
+    letter-spacing:2px;
+    color:var(--text-muted);
+    margin-bottom:40px;
+}
+
+/* CAKE */
+
+.cake-card {
+    background:var(--card-bg);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:24px;
+    padding:35px 20px;
+    max-width:420px;
+    margin:0 auto 35px;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+.blow-btn {
+    background:rgba(232,67,147,.15);
+    border:1px solid var(--accent-pink);
+    color:white;
+    padding:10px 20px;
+    border-radius:20px;
+    font-size:13px;
+    cursor:pointer;
+    margin-bottom:30px;
+}
+
+.cake-wrapper {
+    position:relative;
+    width:140px;
+    height:100px;
+    margin:auto;
+}
+
+.cake-base {
+    position:absolute;
+    bottom:0;
+    width:140px;
+    height:40px;
+    background:#ff7675;
+    border-radius:10px 10px 4px 4px;
+}
+
+.cake-middle {
+    position:absolute;
+    bottom:35px;
+    left:15px;
+    width:110px;
+    height:35px;
+    background:#fd79a8;
+    border-radius:10px 10px 4px 4px;
+}
+
+.cake-top {
+    position:absolute;
+    bottom:65px;
+    left:30px;
+    width:80px;
+    height:30px;
+    background:#ffeaa7;
+    border-radius:10px 10px 4px 4px;
+}
+
+.candles-group {
+    position:absolute;
+    top:-5px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:12px;
+}
+
+.candle-stick {
+    width:6px;
+    height:22px;
+    background:white;
+    border-radius:3px;
+    position:relative;
+}
+
+.flame {
+    position:absolute;
+    top:-12px;
+    left:-2px;
+    width:10px;
+    height:14px;
+    background:#ff9f43;
+    border-radius:50% 50% 20% 20%;
+    box-shadow:0 0 10px #ff9f43;
+    animation:flameFlicker .6s infinite alternate;
+    transition:.5s;
+}
+
+.flame.off {
+    opacity:0;
+    transform:translateY(-10px) scale(0);
+}
+
+@keyframes flameFlicker {
+    to {transform:scale(1.15) rotate(2deg);}
+}
+
+.hero-quote {
+    font-size:15px;
+    line-height:1.7;
+    color:var(--text-sub);
+}
+
+/* LETTER */
+
+.letter-card {
+    background:var(--card-bg);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:24px;
+    padding:40px 30px;
+    text-align:left;
+    box-shadow:0 15px 35px rgba(0,0,0,.4);
+}
+
+.letter-date {
+    font-size:12px;
+    color:var(--text-muted);
+    letter-spacing:2px;
+    margin-bottom:12px;
+}
+
+.letter-card h3 {
+    font-family:var(--font-title);
+    font-size:26px;
+    color:var(--accent-light);
+    margin-bottom:20px;
+}
+
+.letter-content p {
+    color:var(--text-sub);
+    font-size:14px;
+    line-height:1.8;
+    margin-bottom:16px;
+}
+
+.letter-signature {
+    margin-top:35px;
+    text-align:right;
+}
+
+.letter-signature h4 {
+    font-family:var(--font-title);
+    font-size:22px;
+    color:var(--accent-pink);
+}
+
+/* BOUQUET */
+
+.bouquet-card {
+    background:var(--card-bg);
+    border-radius:24px;
+    padding:40px 20px;
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.bouquet-display {
+    position:relative;
+    height:200px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    margin-bottom:25px;
+}
+
+.pot {
+    width:90px;
+    height:80px;
+    background:linear-gradient(135deg,#e84393,#b22067);
+    border-radius:0 0 20px 20px;
+    position:relative;
+    z-index:2;
+}
+
+.flowers-container {
+    position:absolute;
+    top:20px;
+    display:flex;
+    gap:20px;
+    z-index:3;
+}
+
+.flower-btn {
+    font-size:38px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.flower-btn:hover {
+    transform:scale(1.3) translateY(-10px);
+}
+
+.bouquet-msg-box {
+    background:rgba(255,255,255,.04);
+    border:1px dashed rgba(232,67,147,.4);
+    border-radius:16px;
+    padding:18px;
+    font-size:14px;
+    color:var(--gold);
+    min-height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* GALLERY */
+
+.polaroid-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-top:30px;
+}
+
+.polaroid-card {
+    background:white;
+    color:#2d3436;
+    padding:14px 14px 22px;
+    border-radius:6px;
+    box-shadow:0 10px 25px rgba(0,0,0,.4);
+    cursor:pointer;
+    transition:.3s;
+    text-align:left;
+}
+
+.polaroid-card:hover {transform:translateY(-5px);}
+
+.polaroid-img-wrapper {
+    width:100%;
+    height:260px;
+    background:#2d3436;
+    border-radius:6px;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.polaroid-img-wrapper img {
+    position:absolute;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    object-position:center;
+    opacity:0;
+    transition:opacity .5s;
+    background:#1a0f14;
+}
+
+.polaroid-card.revealed img {opacity:1;}
+
+.polaroid-placeholder {
+    color:#dfe6e9;
+    font-size:12px;
+    text-align:center;
+}
+
+.polaroid-card.revealed .polaroid-placeholder {display:none;}
+
+.polaroid-caption-text {
+    font-size:11px;
+    color:#636e72;
+    margin-top:12px;
+    display:none;
+    line-height:1.5;
+}
+
+.polaroid-card.revealed .polaroid-caption-text {display:block;}
+
+/* TIMELINE */
+
+.timeline {
+    position:relative;
+    margin-top:40px;
+    padding:10px 0;
+}
+
+.timeline-line {
+    position:absolute;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+    width:2px;
+    height:100%;
+    background:linear-gradient(to bottom,var(--accent-pink),var(--gold));
+}
+
+.timeline-item {
+    display:flex;
+    justify-content:flex-end;
+    padding-right:50%;
+    position:relative;
+    margin-bottom:35px;
+}
+
+.timeline-item.right {
+    justify-content:flex-start;
+    padding-left:50%;
+    padding-right:0;
+}
+
+.timeline-card {
+    background:var(--card-bg);
+    border:1px solid rgba(255,255,255,.06);
+    width:88%;
+    padding:22px;
+    border-radius:18px;
+    text-align:left;
+    box-shadow:0 8px 20px rgba(0,0,0,.3);
+}
+
+.timeline-emoji {
+    font-size:22px;
+    margin-bottom:8px;
+    display:block;
+}
+
+.timeline-card h3 {
+    font-family:var(--font-title);
+    font-size:18px;
+    color:var(--accent-light);
+    margin-bottom:6px;
+}
+
+.timeline-card p {
+    font-size:12.5px;
+    color:var(--text-sub);
+    line-height:1.6;
+}
+
+/* MUSIC PLAYER */
+
+.player-card {
+    background:var(--card-bg);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:28px;
+    padding:35px 25px;
+    max-width:440px;
+    margin:auto;
+    box-shadow:0 15px 35px rgba(0,0,0,.4);
+}
+
+.vinyl-container {
+    width:150px;
+    height:150px;
+    margin:0 auto 25px;
+}
+
+.vinyl-disk {
+    width:100%;
+    height:100%;
+    background:radial-gradient(circle,#333 18%,#111 18%,#111 24%,#222 25%,#111 55%,#000 70%);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 10px 25px rgba(0,0,0,.6);
+}
+
+.vinyl-disk.spinning {animation:spin 4s linear infinite;}
+
+@keyframes spin {to {transform:rotate(360deg);}}
+
+.vinyl-label {
+    width:55px;
+    height:55px;
+    background:var(--accent-pink);
+    border-radius:50%;
+    border:3px solid #111;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.vinyl-label:after {
+    content:'';
+    width:12px;
+    height:12px;
+    background:var(--card-bg);
+    border-radius:50%;
+}
+
+.player-song-title {
+    font-family:var(--font-title);
+    font-size:20px;
+    margin-bottom:4px;
+}
+
+.player-artist {
+    font-size:13px;
+    color:var(--text-muted);
+    margin-bottom:22px;
+}
+
+.progress-bar-container {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:11px;
+    color:var(--text-muted);
+    margin-bottom:20px;
+}
+
+.progress-bar {
+    flex:1;
+    height:5px;
+    background:rgba(255,255,255,.1);
+    border-radius:3px;
+    cursor:pointer;
+    overflow:hidden;
+}
+
+.progress-fill {
+    height:100%;
+    width:0;
+    background:var(--accent-pink);
+    border-radius:3px;
+}
+
+.player-controls {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    margin-bottom:25px;
+}
+
+.control-btn {
+    background:none;
+    border:none;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.control-btn.play-btn {
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:var(--accent-pink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 0 15px var(--accent-pink-glow);
+}
+
+.music-status {
+    font-size:12px;
+    color:var(--text-muted);
+    margin-bottom:15px;
+    min-height:18px;
+}
+
+/* FOOTER */
+
+footer {
+    background:#0f080c;
+    padding:60px 20px;
+    text-align:center;
+    border-top:1px solid rgba(255,255,255,.05);
+}
+
+footer h2 {
+    font-family:var(--font-title);
+    font-size:28px;
+    margin-bottom:15px;
+}
+
+.footer-text {
+    max-width:580px;
+    margin:0 auto 30px;
+    color:var(--text-muted);
+    font-size:13.5px;
+    line-height:1.8;
+}
+
+.creator-tag {
+    font-size:12px;
+    letter-spacing:1.5px;
+    color:var(--accent-pink);
+    font-weight:600;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:600px) {
+    .hero-title {font-size:40px;}
+    .section-title {font-size:26px;}
+
+    .timeline-item,
+    .timeline-item.right {
+        padding-left:30px;
+        padding-right:0;
+        justify-content:flex-start;
+    }
+
+    .timeline-line {left:15px;}
+    .timeline-card {width:100%;}
+    .polaroid-grid {grid-template-columns:1fr 1fr;}
+    .polaroid-img-wrapper {height:190px;}
+    .flowers-container {gap:12px;}
+    .flower-btn {font-size:30px;}
+}
+
+@media(max-width:360px) {
+    .polaroid-grid {grid-template-columns:1fr;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="ambient-bg" id="ambientBg"></div>
+
+<!-- AUDIO LOKAL -->
+<audio id="birthdayAudio" src="audio1.mp3" preload="auto"></audio>
+
+<!-- PIN SCREEN -->
+<div id="lock-screen" class="screen active">
+    <div class="lock-card">
+        <i class="fa-solid fa-heart lock-icon"></i>
+        <h2>Untuk Oloan</h2>
+        <p>Masukkan kode rahasia ✨</p>
+
+        <div class="pin-dots" id="pinDots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <div class="keypad">
+            <button class="key" onclick="pressKey('1')">1</button>
+            <button class="key" onclick="pressKey('2')">2</button>
+            <button class="key" onclick="pressKey('3')">3</button>
+            <button class="key" onclick="pressKey('4')">4</button>
+            <button class="key" onclick="pressKey('5')">5</button>
+            <button class="key" onclick="pressKey('6')">6</button>
+            <button class="key" onclick="pressKey('7')">7</button>
+            <button class="key" onclick="pressKey('8')">8</button>
+            <button class="key" onclick="pressKey('9')">9</button>
+            <button class="key" onclick="clearPin()"><i class="fa-solid fa-xmark"></i></button>
+            <button class="key" onclick="pressKey('0')">0</button>
+            <button class="key" onclick="submitPin()"><i class="fa-solid fa-check"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- GIFT SCREEN -->
+<div id="gift-screen" class="screen">
+    <div class="gift-container" onclick="openGift()">
+        <p class="gift-instruction">Ketuk kotak hadiah untuk membukanya 🎁</p>
+        <div class="gift-box">
+            <div class="gift-bow"></div>
+            <div class="gift-lid"><div class="gift-ribbon-v"></div></div>
+            <div class="gift-body"><div class="gift-ribbon-v"></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="bloom-overlay" id="bloomOverlay"></div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content">
+
+    <nav class="birthday-nav">
+        <a href="#beranda">Beranda</a>
+        <a href="#surat">Surat</a>
+        <a href="#bunga">Bunga</a>
+        <a href="#galeri">Galeri</a>
+        <a href="#cerita">Cerita</a>
+        <a href="#musik">Musik</a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero-section" id="beranda">
+        <span class="section-tag">— DINGINAN NAULI —</span>
+
+        <h1 class="hero-title">
+            Selamat<br>
+            <span>Ulang Tahun</span><br>
+            Oloan
+        </h1>
+
+        <p class="hero-date">NOVEMBER · YOUR SPECIAL DAY</p>
+
+        <div class="cake-card">
+            <button class="blow-btn" id="blowBtn" onclick="blowCandles()">
+                <i class="fa-solid fa-wind"></i>
+                Tap lilin untuk meniupnya! 🎂
+            </button>
+
+            <div class="cake-wrapper">
+                <div class="candles-group">
+                    <div class="candle-stick"><div class="flame"></div></div>
+                    <div class="candle-stick"><div class="flame"></div></div>
+                    <div class="candle-stick"><div class="flame"></div></div>
+                </div>
+                <div class="cake-top"></div>
+                <div class="cake-middle"></div>
+                <div class="cake-base"></div>
+            </div>
+        </div>
+
+        <p class="hero-quote">
+            <b>Horas, Oloan! Selamat ulang tahun. 🌸</b><br>
+            <span style="font-size:12px;color:var(--text-muted)">
+                Tetap sehat, sukses, jala gabe las ni roham.
+            </span>
+        </p>
+    </section>
+
+    <!-- SURAT -->
+    <section id="surat">
+        <span class="section-tag">— A LETTER FOR YOU —</span>
+
+        <div class="letter-card">
+            <p class="letter-date">NOVEMBER</p>
+            <h3>Oloan Nainggolan 🌸</h3>
+
+            <div class="letter-content">
+                <p>Horas, Oloan! Selamat ulang tahun. Sai sehat ma ho jala panjang umur.</p>
+
+                <p>Godang do hal na hu kagumi sian ho. Cara ho marhata, martawa, dohot marparange.</p>
+
+                <p>Tetap gabe dirim sandiri. Unang hea menyerah tu impianmu.</p>
+
+                <p>Bujur ma tu saluhutna. Semoga Tuhan selalu menjaga langkahmu. Tetap bersinar, Oloan! 🌸</p>
+            </div>
+
+            <div class="letter-signature">
+                <h4>syaa</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- BUNGA -->
+    <section id="bunga">
+        <span class="section-tag">— MY FIRST GIFT —</span>
+        <h2 class="section-title">Digital Bouquet</h2>
+        <p class="section-desc">Setiap bunga menyimpan pesan kecil untukmu</p>
+
+        <div class="bouquet-card">
+            <div class="bouquet-display">
+                <div class="pot"></div>
+
+                <div class="flowers-container">
+                    <span class="flower-btn" onclick="showFlowerMsg('Tetap semangat, Oloan! 🌷')">🌷</span>
+                    <span class="flower-btn" onclick="showFlowerMsg('Sai las ma rohammu salelengna. 🌻')">🌻</span>
+                    <span class="flower-btn" onclick="showFlowerMsg('Tetap gabe dirim sandiri. 🌸')">🌸</span>
+                    <span class="flower-btn" onclick="showFlowerMsg('Mejuah-juah! Tetap sehat jala sukses. 🌺')">🌺</span>
+                </div>
+            </div>
+
+            <div class="bouquet-msg-box" id="bouquetMsg">
+                Ketuk salah satu bunga di atas untuk membaca pesannya! 💐
+            </div>
+        </div>
+    </section>
+
+    <!-- GALERI -->
+    <section id="galeri">
+        <span class="section-tag">— MEMORIES —</span>
+        <h2 class="section-title">Koleksi Suasana Asik</h2>
+
+        <p class="section-desc">
+            Perasaan-perasaan yang baik, kagumnya besar-besaran, meski mesranya kecil-kecilan.
+        </p>
+
+        <div class="polaroid-grid">
+
+            <div class="polaroid-card" onclick="revealPolaroid(this)">
+                <div class="polaroid-img-wrapper">
+                    <div class="polaroid-placeholder">
+                        <i class="fa-solid fa-image"></i><br>
+                        Ketuk untuk mengungkap
+                    </div>
+                    <img src="foto1.jpeg" alt="Foto 1">
+                </div>
+                <div class="polaroid-caption-text">
+                    "Kehadiranmu membuat sejuta kesedihan hilang dalam sekejap."
+                </div>
+            </div>
+
+            <div class="polaroid-card" onclick="revealPolaroid(this)">
+                <div class="polaroid-img-wrapper">
+                    <div class="polaroid-placeholder">
+                        <i class="fa-solid fa-image"></i><br>
+                        Ketuk untuk mengungkap
+                    </div>
+                    <img src="foto2.jpeg" alt="Foto 2">
+                </div>
+                <div class="polaroid-caption-text">
+                    "Ganup detail sian dirim mambahen sada carita na uli."
+                </div>
+            </div>
+
+            <div class="polaroid-card" onclick="revealPolaroid(this)">
+                <div class="polaroid-img-wrapper">
+                    <div class="polaroid-placeholder">
+                        <i class="fa-solid fa-image"></i><br>
+                        Ketuk untuk mengungkap
+                    </div>
+                    <img src="foto3.jpeg" alt="Foto 3">
+                </div>
+                <div class="polaroid-caption-text">
+                    "Mansai godang do hal na hu kagumi sian ho, jala ndang hea sae rasa las ni rohakku mamereng ho."
+                </div>
+            </div>
+
+            <div class="polaroid-card" onclick="revealPolaroid(this)">
+                <div class="polaroid-img-wrapper">
+                    <div class="polaroid-placeholder">
+                        <i class="fa-solid fa-image"></i><br>
+                        Ketuk untuk mengungkap
+                    </div>
+                    <img src="foto4.jpeg" alt="Foto 4">
+                </div>
+                <div class="polaroid-caption-text">
+                    "Tampak sempurna dan memesona apa adanya."
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CERITA -->
+    <section id="cerita">
+        <span class="section-tag">— KATA HATI —</span>
+        <h2 class="section-title">Taringot tu Halak na Kukagumi</h2>
+
+        <p class="section-desc">Godang do na huida na uli sian ho. ❤️</p>
+
+        <div class="timeline">
+            <div class="timeline-line"></div>
+
+            <div class="timeline-item">
+                <div class="timeline-card">
+                    <span class="timeline-emoji">✨</span>
+                    <h3>Mulana Kukagumi</h3>
+                    <p>Sian mulana, ho do na mambahen au tartarik.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item right">
+                <div class="timeline-card">
+                    <span class="timeline-emoji">🌙</span>
+                    <h3>Na Istimewa</h3>
+                    <p>Serep ni roham dohot pangalaho mi tongtong huingot.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-card">
+                    <span class="timeline-emoji">💖</span>
+                    <h3>Na Kukagumi</h3>
+                    <p>Pangalaho dohot parange mi na mambahen au kagum.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item right">
+                <div class="timeline-card">
+                    <span class="timeline-emoji">🌸</span>
+                    <h3>Tongtong Istimewa</h3>
+                    <p>Tongtong ma gabe dirim sandiri. Ho tetap istimewa.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-card">
+                    <span class="timeline-emoji">🏡</span>
+                    <h3>Pasupasu tu Ho</h3>
+                    <p>
+                        Horas, Oloan! Sai sehat, gabe sukses, jala saut ma saluhut na dihaporhon. ❤️
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MUSIK -->
+    <section id="musik">
+        <span class="section-tag">— SPECIAL MUSIC —</span>
+        <h2 class="section-title">Our Playlist</h2>
+
+        <p class="section-desc">
+            Lagu spesial untuk Bg Oloan ❤️
+        </p>
+
+        <div class="player-card">
+
+            <div class="vinyl-container">
+                <div class="vinyl-disk" id="vinylDisk">
+                    <div class="vinyl-label"></div>
+                </div>
+            </div>
+
+            <h3 class="player-song-title" id="songTitle">
+                apa ya
+            </h3>
+
+            <p class="player-artist" id="artistName">
+                Lagu spesial untuk Oloan
+            </p>
+
+            <p class="music-status" id="musicStatus">
+                Musik akan diputar setelah PIN benar ❤️
+            </p>
+
+            <div class="progress-bar-container">
+                <span id="currentTime">0:00</span>
+
+                <div class="progress-bar" onclick="seekAudio(event)">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <span id="duration">0:00</span>
+            </div>
+
+            <div class="player-controls">
+                <button class="control-btn play-btn" id="playBtn" onclick="togglePlay()" aria-label="Putar atau jeda musik">
+                    <i class="fa-solid fa-play" id="playIcon"></i>
+                </button>
+            </div>
+
+            <p style="font-size:11px;color:var(--text-muted)">
+                🎵 apa ya — nde tigan
+            </p>
+
+        </div>
+    </section>
+
+    <footer>
+        <h2>Happy Birthday, Oloan! 🌸</h2>
+
+        <p class="footer-text">
+            Semoga hari-harimu selalu dipenuhi kebahagiaan,
+            kesehatan, kesuksesan, dan hal-hal baik.
+            Tetap jadi dirimu sendiri dan terus bersinar.
+            Tuhan memberkati setiap langkahmu. ❤️
+        </p>
+
+        <p class="creator-tag">MADE WITH LOVE — SYAA 💗</p>
+    </footer>
+
+</div>
+
+<script>
+// ====================================
+// 1. BACKGROUND PETALS
+// ====================================
+
+const ambientBg = document.getElementById("ambientBg");
+
+for (let i = 0; i < 25; i++) {
+    const petal = document.createElement("div");
+
+    petal.className = "floating-petal";
+    petal.style.left = Math.random() * 100 + "%";
+    petal.style.width = Math.random() * 12 + 8 + "px";
+    petal.style.height = Math.random() * 16 + 10 + "px";
+    petal.style.animationDuration = Math.random() * 6 + 6 + "s";
+    petal.style.animationDelay = Math.random() * 5 + "s";
+
+    ambientBg.appendChild(petal);
+}
+
+// ====================================
+// 2. MUSIC PLAYER
+// ====================================
+
+const birthdayAudio = document.getElementById("birthdayAudio");
+
+const playIcon = document.getElementById("playIcon");
+const vinyl = document.getElementById("vinylDisk");
+const musicStatus = document.getElementById("musicStatus");
+
+let isPlaying = false;
+
+function updatePlayButton() {
+    if (birthdayAudio.paused) {
+        isPlaying = false;
+        playIcon.className = "fa-solid fa-play";
+        vinyl.classList.remove("spinning");
+    } else {
+        isPlaying = true;
+        playIcon.className = "fa-solid fa-pause";
+        vinyl.classList.add("spinning");
+    }
+}
+
+// Fungsi memulai musik setelah PIN benar
+function startMusicAfterPin() {
+    birthdayAudio.volume = 0.8;
+
+    const playPromise = birthdayAudio.play();
+
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            isPlaying = true;
+            updatePlayButton();
+            musicStatus.innerText = "Sedang memutar Boru Damanik ❤️";
+        }).catch(error => {
+            console.warn("Musik belum dapat diputar:", error);
+
+            musicStatus.innerText =
+                "Tekan tombol Play untuk memutar musik ❤️";
+
+            isPlaying = false;
+            updatePlayButton();
+        });
+    }
+}
+
+// Tombol Play dan Pause
+function togglePlay() {
+    if (birthdayAudio.paused) {
+        birthdayAudio.play().then(() => {
+            musicStatus.innerText = "Sedang memutar musik ❤️";
+        }).catch(() => {
+            musicStatus.innerText =
+                "Musik gagal diputar. Periksa file audio1.mp3.";
+        });
+    } else {
+        birthdayAudio.pause();
+        musicStatus.innerText = "Musik dijeda.";
+    }
+}
+
+// Ketika musik diputar
+birthdayAudio.addEventListener("play", () => {
+    isPlaying = true;
+    updatePlayButton();
+});
+
+// Ketika musik dijeda
+birthdayAudio.addEventListener("pause", () => {
+    isPlaying = false;
+    updatePlayButton();
+});
+
+// Ketika musik selesai
+birthdayAudio.addEventListener("ended", () => {
+    isPlaying = false;
+    updatePlayButton();
+    musicStatus.innerText = "Lagu selesai diputar ❤️";
+});
+
+// Progress lagu
+birthdayAudio.addEventListener("timeupdate", () => {
+    const current = birthdayAudio.currentTime;
+    const duration = birthdayAudio.duration;
+
+    if (!Number.isFinite(duration) || duration <= 0) return;
+
+    const progress = (current / duration) * 100;
+
+    document.getElementById("progressFill").style.width =
+        progress + "%";
+
+    document.getElementById("currentTime").innerText =
+        formatTime(current);
+
+    document.getElementById("duration").innerText =
+        formatTime(duration);
+});
+
+// Durasi lagu
+birthdayAudio.addEventListener("loadedmetadata", () => {
+    document.getElementById("duration").innerText =
+        formatTime(birthdayAudio.duration);
+});
+
+// Jika file musik tidak ditemukan
+birthdayAudio.addEventListener("error", () => {
+    musicStatus.innerText =
+        "File audio1.mp3 tidak ditemukan. Periksa lokasi file musik.";
+});
+
+// Mengatur posisi lagu
+function seekAudio(event) {
+    if (!Number.isFinite(birthdayAudio.duration)) return;
+
+    const bar = event.currentTarget;
+    const rect = bar.getBoundingClientRect();
+
+    const position = (event.clientX - rect.left) / rect.width;
+
+    birthdayAudio.currentTime =
+        Math.max(0, Math.min(1, position)) * birthdayAudio.duration;
+}
+
+// Format waktu
+function formatTime(seconds) {
+    if (!Number.isFinite(seconds)) return "0:00";
+
+    const minutes = Math.floor(seconds / 60);
+    const remaining = Math.floor(seconds % 60);
+
+    return minutes + ":" + String(remaining).padStart(2, "0");
+}
+
+// ====================================
+// 3. PIN LOCK SYSTEM
+// ====================================
+
+let currentPin = "";
+const correctPin = "920129";
+let pinSubmitting = false;
+
+function pressKey(num) {
+    if (pinSubmitting || currentPin.length >= 6) return;
+
+    currentPin += num;
+    updateDots();
+
+    if (currentPin.length === 6) {
+        submitPin();
+    }
+}
+
+function clearPin() {
+    if (pinSubmitting) return;
+
+    currentPin = "";
+    updateDots();
+}
+
+function updateDots() {
+    const dots = document.querySelectorAll(".dot");
+
+    dots.forEach((dot, index) => {
+        dot.classList.toggle("filled", index < currentPin.length);
+        dot.classList.remove("error");
+    });
+}
+
+function submitPin() {
+    if (pinSubmitting || currentPin.length !== 6) return;
+
+    if (currentPin === correctPin) {
+        pinSubmitting = true;
+
+        // Mulai musik langsung dari interaksi PIN terakhir.
+        startMusicAfterPin();
+
+        document.getElementById("lock-screen").classList.remove("active");
+        document.getElementById("gift-screen").classList.add("active");
+
+    } else {
+        const dots = document.querySelectorAll(".dot");
+
+        dots.forEach(dot => dot.classList.add("error"));
+
+        setTimeout(() => {
+            currentPin = "";
+            pinSubmitting = false;
+            updateDots();
+        }, 500);
+    }
+}
+
+// PIN melalui keyboard komputer
+document.addEventListener("keydown", function(event) {
+    if (!document.getElementById("lock-screen").classList.contains("active")) {
+        return;
+    }
+
+    if (/^[0-9]$/.test(event.key)) {
+        pressKey(event.key);
+    } else if (event.key === "Backspace") {
+        clearPin();
+    } else if (event.key === "Enter") {
+        submitPin();
+    }
+});
+
+// ====================================
+// 4. GIFT BOX
+// ====================================
+
+let giftOpened = false;
+
+function openGift() {
+    if (giftOpened) return;
+
+    giftOpened = true;
+
+    const giftBox = document.querySelector(".gift-box");
+    giftBox.style.transform = "scale(1.3) rotate(5deg)";
+
+    const bloomOverlay = document.getElementById("bloomOverlay");
+
+    bloomOverlay.classList.add("active");
+
+    const flowers = ["🌸", "🌺", "🌷", "🌻", "💐", "✨"];
+
+    for (let i = 0; i < 30; i++) {
+        const flower = document.createElement("div");
+
+        flower.className = "bloom-flower";
+        flower.innerText =
+            flowers[Math.floor(Math.random() * flowers.length)];
+
+        flower.style.left = Math.random() * 90 + 5 + "%";
+        flower.style.top = Math.random() * 90 + 5 + "%";
+        flower.style.animationDelay = Math.random() * 0.4 + "s";
+
+        bloomOverlay.appendChild(flower);
+    }
+
+    setTimeout(() => {
+        document.getElementById("gift-screen").classList.remove("active");
+
+        const mainContent = document.getElementById("main-content");
+        mainContent.classList.add("visible");
+
+        if (typeof confetti === "function") {
+            confetti({
+                particleCount:120,
+                spread:80,
+                origin:{y:0.6}
+            });
+        }
+
+    }, 1000);
+}
+
+// ====================================
+// 5. CAKE CANDLES
+// ====================================
+
+function blowCandles() {
+    const flames = document.querySelectorAll(".flame");
+
+    flames.forEach(flame => flame.classList.add("off"));
+
+    const button = document.getElementById("blowBtn");
+
+    button.innerHTML =
+        '<i class="fa-solid fa-sparkles"></i> Wish You All The Best! ✨';
+
+    button.style.background = "var(--accent-pink)";
+
+    if (typeof confetti === "function") {
+        confetti({
+            particleCount:80,
+            spread:60,
+            origin:{y:0.4}
+        });
+    }
+}
+
+// ====================================
+// 6. DIGITAL BOUQUET
+// ====================================
+
+function showFlowerMsg(message) {
+    const box = document.getElementById("bouquetMsg");
+
+    box.style.opacity = 0;
+
+    setTimeout(() => {
+        box.innerText = message;
+        box.style.opacity = 1;
+    }, 200);
+}
+
+// ====================================
+// 7. POLAROID GALLERY
+// ====================================
+
+function revealPolaroid(card) {
+    card.classList.toggle("revealed");
+}
+
+</script>
+
+</body>
+</html>
+```
